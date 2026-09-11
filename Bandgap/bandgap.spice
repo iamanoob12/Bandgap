@@ -1,0 +1,36 @@
+*** Bandgap ***
+
+.lib "$PDK_ROOT/sky130A/libs.tech/ngspice/sky130.lib.spice" tt
+
+*** source ***
+Vdd Vdd 0 DC 1.8
+
+*** PTAT ***
+XP1 Vdd N1 N3 Vdd MY_PFET W_val=1 L_val=0.50
+XP2 Vdd N1 N2 Vdd MY_PFET W_val=1 L_val=0.50
+
+R1 N3 N4 1k
+
+XBp1 0 0 N4 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=8
+XBp2 0 0 N2 sky130_fd_pr__pnp_05v5_W3p40L3p40 
+Xop_amp1 N1 N3 N2 Ideal_op_amp
+
+*** CTAT and Ref ***
+XP3 Vdd N1 Vref Vdd MY_PFET W_val=10 L_val=0.50
+R2 Vref N6 837
+XBp3 0 0 N6 sky130_fd_pr__pnp_05v5_W3p40L3p40
+
+.subckt Ideal_op_amp Vout Vp Vm
+    E1 Vout 0 Vp Vm 1Meg
+.ends Ideal_op_amp
+
+.subckt MY_PFET Vs Vg Vd Vb W_val=5 L_val=0.30
+    XMP Vd Vg Vs Vb sky130_fd_pr__pfet_01v8 w='W_val' l='L_val' nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0 m=1
+.ends MY_PFET
+
+.control
+    dc temp -40 125 1
+    plot vref 
+.endc
+
+.end

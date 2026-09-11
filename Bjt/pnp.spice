@@ -1,0 +1,15 @@
+*** Bandgap ***
+
+.lib "$PDK_ROOT/sky130A/libs.tech/ngspice/sky130.lib.spice" tt
+
+*** source ***
+
+Id 0 vbe 50u
+XBp2 0 0 vbe sky130_fd_pr__pnp_05v5_W3p40L3p40
+
+.control
+    echo -n > vbe.txt
+    dc temp -40 125 5
+    print vbe >> vbe.txt
+    quit 
+.endc

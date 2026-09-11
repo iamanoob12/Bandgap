@@ -1,0 +1,14 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: *** pmos low temp ***
+
+Doing analysis at TEMP = -40.000000 and TNOM = -40.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+@m.xp.xmp.msky130_fd_pr__pfet_01v8[id] = 6.394588e-05
+@m.xp.xmp.msky130_fd_pr__pfet_01v8[vth] = 1.032441e+00
+ngspice-45.2 done
