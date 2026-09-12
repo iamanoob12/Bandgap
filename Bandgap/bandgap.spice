@@ -25,7 +25,14 @@ XBp3 0 0 N6 sky130_fd_pr__pnp_05v5_W3p40L3p40
 .ends Ideal_op_amp
 
 .subckt MY_PFET Vs Vg Vd Vb W_val=5 L_val=0.30
-    XMP Vd Vg Vs Vb sky130_fd_pr__pfet_01v8 w='W_val' l='L_val' nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0 m=1
+    XMP Vd Vg Vs Vb sky130_fd_pr__pfet_01v8 W='W_val' L='L_val' 
++ ad=  {int((nf+1)/2)*w/nf*0.29}
++ as=  {int((nf+2)/2)*w/nf*0.29}
++ pd=  {2*int((nf+1)/2)*(w/nf+0.29)}
++ ps=  {2*int((nf+2)/2)*(w/nf+0.29)}
++ nrd= {0.29/w}
++ nrs= {0.29/w}
++ sa = 0 sb = 0 sd = 0
 .ends MY_PFET
 
 .control
