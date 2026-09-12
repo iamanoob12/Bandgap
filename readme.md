@@ -125,7 +125,5 @@ decreases to approximately 1.197 V at 125 °C. The result is shown below:
 
 ![Simulated bandgap reference voltage versus temperature](https://github.com/iamanoob12/Bandgap/raw/main/Bandgap/res.png)
 
-The bandgap netlist uses an ideal voltage-controlled op amp and SKY130 PFET
-and PNP devices. It is intended as a compact circuit experiment rather than a
-production-ready reference design; device sizing, loop stability, startup,
-line regulation, and load behavior are not fully characterized.
+## Future Development
+Changing the ideal op-amp to two sage miller and analyse the PSRR of the bandgap.
