@@ -1,0 +1,62 @@
+*** Bandgap ***
+
+.lib "$PDK_ROOT/sky130A/libs.tech/ngspice/sky130.lib.spice" tt
+
+*** source *** PULSE(0 1.8 1u 100n 1n 200u 1000u)
+Vdd Vdd 0 DC 1.8
+Vss Vss 0 DC -0.2
+
+*** PTAT ***
+XP1 Vdd N1 N3 Vdd MY_PFET W_val=0.75 L_val=0.30
+XP2 Vdd N1 N2 Vdd MY_PFET W_val=0.75 L_val=0.30
+
+R1 N3 N4 1k
+
+XBp1 0 0 N4 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=8
+XBp2 0 0 N2 sky130_fd_pr__pnp_05v5_W3p40L3p40 
+Xop_amp1 Vdd Vss N1 N3 N2 Ideal_op_amp
+
+*** CTAT and Ref ***
+XP3 Vdd N1 Vref Vdd MY_PFET W_val=7.5 L_val=0.30
+R2 Vref N6 837
+XBp3 0 0 N6 sky130_fd_pr__pnp_05v5_W3p40L3p40
+
+.subckt Ideal_op_amp Vdd Vss Vout Vp Vm
+    Xp1 Vdd Vout N1 Vdd MY_PFET W_val=2 L_val=0.50
+    XpP N1 Vp N2 N1 MY_PFET W_val=1 L_val=0.30
+    XpN N1 Vm Vout N1 MY_PFET W_val=1 L_val=0.30
+    Xn1 N2 N2 Vss Vss MY_NFET W_val=0.75 L_val=0.15
+    Xn2 Vout N2 Vss Vss MY_NFET W_val=0.75 L_val=0.15
+.ends Ideal_op_amp
+
+.subckt MY_PFET Vs Vg Vd Vb W_val=5 L_val=0.15
+    XMP Vd Vg Vs Vb sky130_fd_pr__pfet_01v8 W='W_val' L='L_val' 
++ ad=  {int((nf+1)/2)*w/nf*0.29}
++ as=  {int((nf+2)/2)*w/nf*0.29}
++ pd=  {2*int((nf+1)/2)*(w/nf+0.29)}
++ ps=  {2*int((nf+2)/2)*(w/nf+0.29)}
++ nrd= {0.29/w}
++ nrs= {0.29/w}
++ sa = 0 sb = 0 sd = 0
+.ends MY_PFET
+
+.subckt MY_NFET Vd Vg Vs Vb W_val=5 L_val=0.15
+    XMP Vd Vg Vs Vb sky130_fd_pr__nfet_01v8 W='W_val' L='L_val' 
++ ad=  {int((nf+1)/2)*w/nf*0.29}
++ as=  {int((nf+2)/2)*w/nf*0.29}
++ pd=  {2*int((nf+1)/2)*(w/nf+0.29)}
++ ps=  {2*int((nf+2)/2)*(w/nf+0.29)}
++ nrd= {0.29/w}
++ nrs= {0.29/w}
++ sa = 0 sb = 0 sd = 0
+.ends MY_NFET
+
+.control
+    dc temp -40 125 1
+    plot vref
+    
+    *tran 10n 30u
+    *plot v(vdd) v(vref)
+.endc
+
+.end

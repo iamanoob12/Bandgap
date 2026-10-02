@@ -6,8 +6,8 @@
 Vdd Vdd 0 DC 1.8
 
 *** PTAT ***
-XP1 Vdd N1 N3 Vdd MY_PFET W_val=1 L_val=0.50
-XP2 Vdd N1 N2 Vdd MY_PFET W_val=1 L_val=0.50
+XP1 Vdd N1 N3 Vdd MY_PFET W_val=0.75 L_val=0.30
+XP2 Vdd N1 N2 Vdd MY_PFET W_val=0.75 L_val=0.30
 
 R1 N3 N4 1k
 
