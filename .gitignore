@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Generated ngspice data and plots
+Bandgap/Result/*.raw
+Bandgap/Result/*.out
+Bandgap/Schem_Res/bandgap_corners.png

@@ -242,4 +242,8 @@ sa=0 sb=0 sd=0
 model=nfet_01v8
 spiceprefix=X
 }
-C {isource.sym} 510 240 0 0 {name=I0 value=75u}
+C {res.sym} 510 240 2 0 {name=R4
+value=13k
+footprint=1206
+device=resistor
+m=1}
