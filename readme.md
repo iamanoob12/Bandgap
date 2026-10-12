@@ -111,9 +111,9 @@ The amplifier is characterized in the [Two-Stage Miller project](https://github.
 
 | Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C |
 | ------ | ------------ | -------- | -------- | ------------ | ----------- | -------------------- |
-| tt     | ≈ 1.1783 V   | ≈ 1.1775 V (−40 °C) | ≈ 1.1790 V (≈ 105 °C) | ≈ 1.5 mV | ≈ 8  | n/a |
-| ss     | ≈ 1.1946 V   | ≈ 1.1916 V (−40 °C) | ≈ 1.1959 V (≈ 80 °C)  | ≈ 4.3 mV | ≈ 22 | ≈ +16 mV (+1.4 %) |
-| ff     | ≈ 1.1604 V   | ≈ 1.1603 V (≈ 35 °C) | ≈ 1.1624 V (−40 °C)  | ≈ 2.0 mV | ≈ 10 | ≈ −18 mV (−1.5 %) |
+| tt     | ≈ 1.1784 V   | ≈ 1.1776 V (-40 °C) | ≈ 1.1790 V (105 °C)  | ≈ 1.5 mV | ≈ 8 | n/a |
+| ss     | ≈ 1.1947 V   | ≈ 1.1916 V (-40 °C) | ≈ 1.1958 V (82 °C)  | ≈ 4.2 mV | ≈ 22 | ≈ +16 mV (+1.4 %) |
+| ff     | ≈ 1.1604 V   | ≈ 1.1604 V (38 °C) | ≈ 1.1624 V (-40 °C)  | ≈ 2.1 mV | ≈ 11 | ≈ -18 mV (-1.5 %) |
 
 Temperature coefficient is the box method: TC = (Vmax − Vmin) / (Vref(27 °C) · 165 °C) · 10⁶.
 

@@ -1,4 +1,4 @@
-** sch_path: /home/goose/Projects/Spice/Bandgap-mos-edit/Bandgap/Bandgap.sch
+** sch_path: /home/goose/Projects/Spice/Bandgap/Bandgap/Bandgap.sch
 **.subckt Bandgap
 R1 n2 net1 2k
 V1 vdd 0 1.8
@@ -20,18 +20,18 @@ XQ3 0 0 net2 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
 .control
   save all
   dc temp -40 125 1
-  write ff.raw vref
+  write ss.raw vref
   quit
 .endc
 
 
-.lib /usr/local/share/pdk/sky130A/libs.tech/combined/sky130.lib.spice ff
+.lib /usr/local/share/pdk/sky130A/libs.tech/combined/sky130.lib.spice ss
 **** end user architecture code
 **.ends
 
 * expanding   symbol:  two_stage.sym # of pins=5
-** sym_path: /home/goose/Projects/Spice/Bandgap-mos-edit/Bandgap/two_stage.sym
-** sch_path: /home/goose/Projects/Spice/Bandgap-mos-edit/Bandgap/two_stage.sch
+** sym_path: /home/goose/Projects/Spice/Bandgap/Bandgap/two_stage.sym
+** sch_path: /home/goose/Projects/Spice/Bandgap/Bandgap/two_stage.sch
 .subckt two_stage Vdd Vout Vp Vn Vss
 *.ipin Vdd
 *.opin Vout
