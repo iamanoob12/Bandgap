@@ -140,9 +140,9 @@ N 980 360 980 390 {lab=n3}
 N 980 280 980 360 {lab=n3}
 N 760 310 760 360 {lab=n2}
 N 870 170 870 190 {lab=n1}
-N 690 420 780 420 {lab=0}
-N 960 420 1070 420 {lab=vdd}
-N 690 420 690 450 {lab=0}
+N 690 420 780 420 {lab=vdd}
+N 960 420 1070 420 {lab=0}
+N 1070 420 1070 450 {lab=0}
 N 840 470 840 510 {lab=n2}
 N 760 510 840 510 {lab=n2}
 N 900 470 900 510 {lab=n3}
@@ -183,7 +183,7 @@ value="
 .control
   save all  
   dc temp -40 125 1
-  write ff.raw vref
+  write tt.raw vref
   quit
 .endc
 "}
@@ -230,13 +230,13 @@ spiceprefix=X
 C {lab_wire.sym} 870 170 0 0 {name=p3 sig_type=std_logic lab=n1}
 C {lab_wire.sym} 760 390 0 0 {name=p4 sig_type=std_logic lab=n2}
 C {lab_wire.sym} 980 390 0 0 {name=p5 sig_type=std_logic lab=n3}
-C {two_stage.sym} 870 340 1 1 {name=x1}
-C {lab_pin.sym} 1070 420 0 1 {name=p6 sig_type=std_logic lab=vdd}
+C {two_stage.sym} 870 340 3 0 {name=x1}
+C {lab_pin.sym} 690 420 0 0 {name=p6 sig_type=std_logic lab=vdd}
 C {gnd.sym} 760 730 0 0 {name=l2 lab=0}
 C {gnd.sym} 980 730 0 0 {name=l3 lab=0}
 C {gnd.sym} 580 390 0 0 {name=l4 lab=0}
-C {gnd.sym} 690 450 0 0 {name=l5 lab=0}
-C {sky130_fd_pr/corner.sym} -510 350 0 0 {name=CORNER only_toplevel=true corner=ff}
+C {gnd.sym} 1070 450 0 0 {name=l5 lab=0}
+C {sky130_fd_pr/corner.sym} -510 350 0 0 {name=CORNER only_toplevel=true corner=tt}
 C {sky130_fd_pr/pfet_01v8.sym} 1150 170 0 0 {name=M2
 W=0.75
 L=0.15

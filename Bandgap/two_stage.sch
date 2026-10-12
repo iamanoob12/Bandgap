@@ -63,28 +63,28 @@ N 50 340 70 340 {lab=Vss}
 N 70 340 80 340 {lab=Vss}
 N 80 340 80 390 {lab=Vss}
 N 50 390 80 390 {lab=Vss}
-N 380 190 400 190 {lab=Vn}
-N 110 190 130 190 {lab=Vp}
-N 50 290 50 310 {lab=#net5}
-N 50 190 50 230 {lab=#net6}
-N -20 190 50 190 {lab=#net6}
-N -20 190 -20 340 {lab=#net6}
-N -20 340 10 340 {lab=#net6}
-N -20 340 -20 380 {lab=#net6}
-N -20 380 180 380 {lab=#net6}
-N 180 340 180 380 {lab=#net6}
-N 180 340 220 340 {lab=#net6}
-N 50 160 50 190 {lab=#net6}
+N 380 190 400 190 {lab=Vp}
+N 110 190 130 190 {lab=#net5}
+N 50 290 50 310 {lab=#net6}
+N 50 190 50 230 {lab=#net7}
+N -20 190 50 190 {lab=#net7}
+N -20 190 -20 340 {lab=#net7}
+N -20 340 10 340 {lab=#net7}
+N -20 340 -20 380 {lab=#net7}
+N -20 380 180 380 {lab=#net7}
+N 180 340 180 380 {lab=#net7}
+N 180 340 220 340 {lab=#net7}
+N 50 160 50 190 {lab=#net7}
 N 50 -20 50 100 {lab=Vdd}
-N 480 340 560 340 {lab=#net7}
+N 480 340 560 340 {lab=#net8}
 N 440 370 440 410 {lab=Vss}
 N 410 340 440 340 {lab=Vss}
 N 410 340 410 390 {lab=Vss}
 N 410 390 440 390 {lab=Vss}
-N 440 290 440 310 {lab=#net7}
-N 440 290 510 290 {lab=#net7}
-N 510 290 510 340 {lab=#net7}
-N 510 270 510 290 {lab=#net7}
+N 440 290 440 310 {lab=#net8}
+N 440 290 510 290 {lab=#net8}
+N 510 290 510 340 {lab=#net8}
+N 510 270 510 290 {lab=#net8}
 N 510 -20 510 210 {lab=Vdd}
 C {ipin.sym} -20 -20 0 0 {name=p1 lab=Vdd}
 C {opin.sym} 700 130 0 0 {name=p3 lab=Vout}
@@ -174,8 +174,8 @@ m=1
 value=5p
 footprint=1206
 device="ceramic capacitor"}
-C {ipin.sym} 110 190 0 0 {name=p4 lab=Vp}
-C {ipin.sym} 400 190 0 1 {name=p5 lab=Vn}
+C {ipin.sym} 400 190 0 1 {name=p4 lab=Vp}
+C {ipin.sym} 110 190 0 0 {name=p5 lab=Vn}
 C {res.sym} 50 260 2 0 {name=R2
 value=26k
 footprint=1206
