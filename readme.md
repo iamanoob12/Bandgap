@@ -104,6 +104,26 @@ raw files when a Python environment with its dependencies is available:
 .venv/bin/python Bandgap/plot_raw.py
 ```
 
+## Vref versus temperature and process corner
+
+Setup: 1.8 V supply, −40 °C to 125 °C, `tt` / `ss` / `ff` model corners, two-stage amplifier in the loop.
+The amplifier is characterized in the [Two-Stage Miller project](https://github.com/iamanoob12/Two-Stage-Miller).
+
+| Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C |
+| ------ | ------------ | -------- | -------- | ------------ | ----------- | -------------------- |
+| tt     | ≈ 1.1783 V   | ≈ 1.1775 V (−40 °C) | ≈ 1.1790 V (≈ 105 °C) | ≈ 1.5 mV | ≈ 8  | n/a |
+| ss     | ≈ 1.1946 V   | ≈ 1.1916 V (−40 °C) | ≈ 1.1959 V (≈ 80 °C)  | ≈ 4.3 mV | ≈ 22 | ≈ +16 mV (+1.4 %) |
+| ff     | ≈ 1.1604 V   | ≈ 1.1603 V (≈ 35 °C) | ≈ 1.1624 V (−40 °C)  | ≈ 2.0 mV | ≈ 10 | ≈ −18 mV (−1.5 %) |
+
+Temperature coefficient is the box method: TC = (Vmax − Vmin) / (Vref(27 °C) · 165 °C) · 10⁶.
+
+Notes:
+- tt has the lowest variation (≈ 8 ppm/°C), consistent with the design having been tuned at tt.
+- The corner-to-corner spread (ss to ff ≈ 34 mV, ≈ 2.9 %) is several times larger than the variation over temperature inside any one corner. Process, not temperature, dominates the absolute accuracy.
+- The curve shapes differ: tt and ss bow downward, while ff bows upward with a minimum near 35 °C.
+- The resistors are ideal (not SKY130 resistor models), so the corner spread covers only what the model corners change. There is no resistor spread and no mismatch (Monte Carlo) here.
+- Values were read from the plot (±0.5 mV). The numbers above should be regenerated from the raw data.
+
 ![Bandgap corners](Bandgap/Schem_Res/bandgap_corners.png)
 
 ## Topology evolution
@@ -146,6 +166,8 @@ increasing the available overdrive and moving the device further into
 saturation, so -40 °C is the binding constraint for this sizing.
 
 ## CTAT / Vref branch sizing (old)
+PMOS sizing at −40 °C” (W=1, L=0.5, R1=1 kΩ) (W=0.75, L=0.30, R1=1 kΩ result in
+better performance as Vth is lower)
 
 The CTAT (Vref-generating) branch reuses the same PTAT current through a
 current mirror, but the mirrored branch was scaled to 10x the PTAT reference
@@ -177,13 +199,8 @@ With these changes, the revised design operated as expected.
 
 ## Future work
 
-- Replace the ideal op amp with the implemented two-stage OTA and verify the
-	complete closed-loop bandgap operation.
-- Sweep $R_{BE}$, PMOS width, multiplier, and channel length to quantify the
-	current, headroom, and saturation trade-offs.
 - Verify the effect of channel-length reduction and short-channel effects on
 	$V_{th}$, output resistance, and operating-region margins.
 - Analyze PSRR and determine how the PMOS load dimensions affect it.
 - Check loop stability, compensation, startup, line regulation, and load
 	regulation.
-- Verify operation across process, supply-voltage, and temperature corners.
