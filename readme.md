@@ -104,6 +104,8 @@ raw files when a Python environment with its dependencies is available:
 .venv/bin/python Bandgap/plot_raw.py
 ```
 
+![Bandgap corners](Bandgap/Schem_Res/bandgap_corners.png)
+
 ## Topology evolution
 
 The first design attempt used a diode-connected PMOS and diode-connected NMOS
