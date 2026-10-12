@@ -1,0 +1,67 @@
+** sch_path: /home/goose/Projects/Spice/Bandgap-mos-edit/Bandgap/Bandgap.sch
+**.subckt Bandgap
+R1 n2 net1 2k
+V1 vdd 0 1.8
+XM1 n3 n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.15 W=0.75 nf=1 ad=0.2175 as=0.2175 pd=2.08 ps=2.08 nrd=0.386666666666667
++ nrs=0.386666666666667 sa=0 sb=0 sd=0 mult=1
+XM3 n2 n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.15 W=0.75 nf=1 ad=0.2175 as=0.2175 pd=2.08 ps=2.08 nrd=0.386666666666667
++ nrs=0.386666666666667 sa=0 sb=0 sd=0 mult=1
+XQ1 0 0 net1 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=8 mult=8
+XQ2 0 0 n3 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+x1 vdd n1 n3 n2 0 two_stage
+XM2 vref n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.15 W=0.75 nf=1 ad=0.2175 as=0.2175 pd=2.08 ps=2.08 nrd=0.386666666666667
++ nrs=0.386666666666667 sa=0 sb=0 sd=0 mult=10 m=10
+R2 vref net2 1350
+XQ3 0 0 net2 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+**** begin user architecture code
+
+
+.option savecurrents
+.control
+  save all
+  dc temp -40 125 1
+  write ff.raw vref
+  quit
+.endc
+
+
+.lib /usr/local/share/pdk/sky130A/libs.tech/combined/sky130.lib.spice ff
+**** end user architecture code
+**.ends
+
+* expanding   symbol:  two_stage.sym # of pins=5
+** sym_path: /home/goose/Projects/Spice/Bandgap-mos-edit/Bandgap/two_stage.sym
+** sch_path: /home/goose/Projects/Spice/Bandgap-mos-edit/Bandgap/two_stage.sch
+.subckt two_stage Vdd Vout Vp Vn Vss
+*.ipin Vdd
+*.opin Vout
+*.ipin Vss
+*.ipin Vp
+*.ipin Vn
+XM1 net1 net1 Vdd Vdd sky130_fd_pr__pfet_01v8 L=0.30 W=7.2 nf=1 ad=2.088 as=2.088 pd=14.98 ps=14.98 nrd=0.0402777777777778
++ nrs=0.0402777777777778 sa=0 sb=0 sd=0 mult=1
+XM2 net1 Vp net3 net3 sky130_fd_pr__nfet_01v8 L=0.15 W=0.66 nf=1 ad=0.1914 as=0.1914 pd=1.9 ps=1.9 nrd=0.439393939393939
++ nrs=0.439393939393939 sa=0 sb=0 sd=0 mult=1
+XM3 net2 net1 Vdd Vdd sky130_fd_pr__pfet_01v8 L=0.30 W=7.2 nf=1 ad=2.088 as=2.088 pd=14.98 ps=14.98 nrd=0.0402777777777778
++ nrs=0.0402777777777778 sa=0 sb=0 sd=0 mult=1
+XM4 net2 Vn net3 net3 sky130_fd_pr__nfet_01v8 L=0.15 W=0.66 nf=1 ad=0.1914 as=0.1914 pd=1.9 ps=1.9 nrd=0.439393939393939
++ nrs=0.439393939393939 sa=0 sb=0 sd=0 mult=1
+XM5 Vout net2 Vdd Vdd sky130_fd_pr__pfet_01v8 L=0.30 W=30 nf=1 ad=8.7 as=8.7 pd=60.58 ps=60.58 nrd=0.00966666666666667
++ nrs=0.00966666666666667 sa=0 sb=0 sd=0 mult=2 m=2
+C1 Vout net4 2p
+R1 net4 net2 9k
+C2 Vss Vout 5p
+R2 net5 net6 26k
+R3 net6 Vdd 54k
+XM6 net5 net6 Vss Vss sky130_fd_pr__nfet_01v8 L=0.50 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0
++ mult=1
+XM7 net3 net6 Vss Vss sky130_fd_pr__nfet_01v8 L=0.50 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0
++ mult=1
+XM8 net7 net7 Vss Vss sky130_fd_pr__nfet_01v8 L=0.50 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0
++ mult=1
+XM9 Vout net7 Vss Vss sky130_fd_pr__nfet_01v8 L=0.50 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0
++ mult=1
+R4 net7 Vdd 13k
+.ends
+
+.end
