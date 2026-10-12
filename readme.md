@@ -134,4 +134,4 @@ decreases to approximately 1.197 V at 125 °C. The result is shown below:
 ![Simulated bandgap reference voltage versus temperature](Bandgap/Schem_Res/bandgap_corners.png)
 
 ## Future Development
-Changing the ideal op-amp to two sage miller and analyse the PSRR of the bandgap.
+Analyse the PSRR of the bandgap.
