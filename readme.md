@@ -249,8 +249,6 @@ required branch-voltage relationship.
 
 ## Future work
 
-- Verify the effect of channel-length reduction and short-channel effects on
-	$V_{th}$, output resistance, and operating-region margins.
-- Analyze PSRR and determine how the PMOS load dimensions affect it.
+- Analyze PSRR.
 - Check loop stability, compensation, startup, line regulation, and load
 	regulation.
