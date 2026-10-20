@@ -43,8 +43,9 @@ export PDK_ROOT=/path/to/your/pdk
 .
 ├── Bandgap/
 │   ├── Bandgap.sch          # Main bandgap schematic
-│   ├── two_stage.sch        # Two-stage amplifier schematic
-│   ├── two_stage.sym        # Local Xschem symbol for the amplifier
+│   ├── ota.sch              # OTA schematic used by the bandgap
+│   ├── ota.sym              # Local Xschem symbol for the OTA
+│   ├── Monte_Carlo/         # Monte Carlo netlist, data, and analysis script
 │   ├── Result/               # Simulation netlists and generated data
 │   ├── Schem_Res/            # Rendered schematics and plots
 │   └── plot_raw.py           # Optional raw-data plotting script
@@ -60,7 +61,7 @@ export PDK_ROOT=/path/to/your/pdk
 
 ## Xschem workflow
 
-1. Open `Bandgap/Bandgap.sch` or `Bandgap/two_stage.sch` in Xschem.
+1. Open `Bandgap/Bandgap.sch` or `Bandgap/ota.sch` in Xschem.
 2. Check the device models, supply values, transistor dimensions, and wiring
 	before running a simulation.
 3. Run the simulation from Xschem using the schematic's configured ngspice
@@ -81,20 +82,19 @@ regions used when sizing the main schematic.
 `Bandgap/Bandgap.sch` contains the main bandgap reference and its configured
 simulation plots.
 
-![Bandgap schematic](Bandgap/Schem_Res/bandgap.png)
+![Bandgap schematic](Bandgap/Schem_Res/Bandgap_schem.png)
 
-### Two-stage amplifier
+### OTA
 
-`Bandgap/two_stage.sch` contains the two-stage amplifier used in the current
-design direction. Its rendered schematic is included here for reference:
+`Bandgap/ota.sch` contains the OTA used in the current bandgap design.
 
-![Two-stage amplifier schematic](Bandgap/Schem_Res/two_stage.png)
+![OTA schematic](Bandgap/Schem_Res/OTA_schem.png)
 
 ## Results
 
 Rendered schematics and simulation plots are stored in
-`Bandgap/Schem_Res/`. The current repository includes the bandgap schematic,
-the temperature-corner plot, and the two-stage amplifier schematic image.
+`Bandgap/Schem_Res/`. The current repository includes the bandgap and OTA
+schematics, process-corner results, and Monte Carlo results.
 
 ## Bandgap design evolution
 
@@ -132,8 +132,7 @@ temperature coefficient extracted from the raw files.
 
 ## Vref versus temperature and process corner
 
-Setup: 1.8 V supply, −40 °C to 125 °C, `tt` / `ss` / `ff` model corners, two-stage amplifier in the loop.
-The amplifier is characterized in the [Two-Stage Miller project](https://github.com/iamanoob12/Two-Stage-Miller).
+Setup: 1.8 V supply, −40 °C to 125 °C, `tt` / `ss` / `ff` model corners, OTA in the loop.
 
 | Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C |
 | ------ | ------------ | -------- | -------- | ------------ | ----------- | -------------------- |
@@ -171,6 +170,15 @@ The 3-sigma range is calculated as `nominal ± 3 × sample sigma`. The large
 Monte Carlo spread indicates that the mismatch model or circuit operating
 point should be investigated separately from the process-corner result.
 
+The distribution and run-by-run results are plotted from
+`Bandgap/Monte_Carlo/vref_27.csv` by
+`Bandgap/Monte_Carlo/analyze_vref.py`:
+
+![Monte Carlo Vref distribution and runs](Bandgap/Schem_Res/vref_results.png)
+
+The full generated report is available in
+[`Bandgap/Schem_Res/vref_statistics.txt`](Bandgap/Schem_Res/vref_statistics.txt).
+
 ## Topology evolution
 
 The first design attempt used a diode-connected PMOS and diode-connected NMOS
@@ -195,13 +203,14 @@ diode-connected device and its associated headroom cost. This keeps the
 series-stacked device count in each sensing branch to one PMOS plus one BJT,
 which fits inside the 1.8 V supply with real margin.
 
-## PMOS sizing at -40 °C
+## Earlier V1 PMOS sizing analysis
 
 Device sizing was checked at the worst case for threshold-voltage headroom:
 the `tt` corner at -40 °C, where $|V_{thp}|$ rises to approximately 1.03 V.
 Using $\Delta V_{BE}=\frac{kT}{q}\ln(8)$ (an 8:1 PNP emitter-area ratio) with
-$R_1=1k\Omega$, the PTAT branch current at -40 °C works out to approximately
-40–50 µA.
+the earlier $R_1=1k\Omega$ value, the PTAT branch current at -40 °C works out
+to approximately 40–50 µA. This is a V1 sizing reference; V2 uses
+$R_1=500\ \Omega$ as described below.
 
 At $W=1, L=0.5$ and biased for this worst-case current, the PMOS carries
 $6.394588\times10^{-5}A$ at the edge of the saturation region — i.e., at
@@ -210,42 +219,36 @@ comfortably inside saturation. As temperature rises, $|V_{thp}|$ decreases,
 increasing the available overdrive and moving the device further into
 saturation, so -40 °C is the binding constraint for this sizing.
 
-## CTAT / Vref branch sizing (old)
-PMOS sizing at −40 °C” (W=1, L=0.5, R1=1 kΩ) (W=0.75, L=0.30, R1=1 kΩ result in
-better performance as Vth is lower)
+## V2 topology and design rationale
 
-The CTAT (Vref-generating) branch reuses the same PTAT current through a
-current mirror, but the mirrored branch was scaled to 10x the PTAT reference
-current. This was done for two reasons: it reduces the required $R_2$ by the
-same factor ($R_2\rightarrow R_2/10$ for the same voltage drop), keeping the
-resistor value in a more practical range, and it reduces the relative impact
-of $|V_{thp}|$ drift on the branch's operating point, since the larger bias
-current keeps the mirror device further from the threshold-limited edge
-identified above.
+The current design is a revision of the V1 topology described above. V2 uses
+an 8:1 PNP emitter-area ratio in the PTAT core, implemented with a PNP
+multiplier of $m=8$. This forms the two-PTAT structure used by the feedback
+loop: the difference in $V_{BE}$ is generated by the area ratio and converted
+to a PTAT current through $R_1$.
 
-## Current topology and design rationale
+The V2 value of $R_1=500\ \Omega$ is half the value used in the
+Old-Bandgap design. This lower resistance is intentional. It increases the
+PTAT current produced by the $\Delta V_{BE}$ term and allows the PMOS load
+above the PNP devices to operate closer to the weak-inversion/strong-inversion
+transition, rather than being limited by the low-current operating point of
+the earlier design. The PMOS operating region and its margin should still be
+checked across process, temperature, and supply corners.
 
-While investigating the relationship between $R_{BE}$ and the PMOS load, I
-observed the following:
+The CTAT branch is different from the PTAT core: it uses a single PNP rather
+than the 8:1 PNP pair. Its temperature dependence is therefore obtained from
+the $dV_{BE}/dT$ extracted from the BJT SPICE run, approximately
+$-1.25$ to $-1.4\ \mathrm{mV}/^\circ\mathrm{C}$ over the observed range.
+The OTA combines this single-PNP CTAT voltage with the PTAT contribution to
+set the Vref temperature coefficient.
 
-1. Decreasing $R_{BE}$ increases $I_{PTAT}$. To support the higher current,
-	 the PMOS width or multiplier must be increased, or the channel length must
-	 be reduced. Reducing the channel length is expected to have a significant
-	 effect on PSRR and therefore requires further analysis.
-2. Reducing $L$ from 0.30 to 0.15 and increasing $R_{BE}$ from 1 kΩ to 2 kΩ
-	 reduced $V_{th}$ and allowed the transistors to remain in saturation with a
-	 slightly higher current. This is an initial observation that must be
-	 verified with more detailed sweeps and corner analysis, including
-	 short-channel effects.
-3. Comparing the input and output of the ideal op amp showed that its behavior
-	 matched the requirements of the two-stage OTA.
-
-With these changes, the revised design operated as expected.
+This V2 arrangement replaces the V1 sizing trade-offs based on reducing
+channel length and increasing $R_{BE}$. It keeps the PNP area scaling and
+resistor value explicit in the schematic while using the OTA to enforce the
+required branch-voltage relationship.
 
 ## Future work
 
-- Verify the effect of channel-length reduction and short-channel effects on
-	$V_{th}$, output resistance, and operating-region margins.
-- Analyze PSRR and determine how the PMOS load dimensions affect it.
+- Analyze PSRR.
 - Check loop stability, compensation, startup, line regulation, and load
 	regulation.
