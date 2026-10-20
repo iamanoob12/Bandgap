@@ -7,16 +7,16 @@ XM3 n2 n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.50 W=10 nf=1 ad=2.9 as=2.9 pd=20.5
 + mult=1
 XQ1 GND GND net1 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=8 mult=8
 XQ2 GND GND n3 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=2 mult=2
-XM2 Vb Vb vdd vdd sky130_fd_pr__pfet_01v8 L=0.30 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
-+ mult=1
-XM4 GND GND Vb Vb sky130_fd_pr__pfet_01v8 L=0.30 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
-+ mult=1
+XM2 Vb Vb vdd vdd sky130_fd_pr__pfet_01v8 L=0.50 W=32 nf=1 ad=9.28 as=9.28 pd=64.58 ps=64.58 nrd=0.0090625 nrs=0.0090625 sa=0 sb=0
++ sd=0 mult=1
+XM4 GND GND Vb Vb sky130_fd_pr__pfet_01v8 L=0.50 W=32 nf=1 ad=9.28 as=9.28 pd=64.58 ps=64.58 nrd=0.0090625 nrs=0.0090625 sa=0 sb=0
++ sd=0 mult=1
 XM5 vref n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.50 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
 + mult=1
 XQ3 GND GND net2 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
 x1 vdd Vb n2 n3 n1 GND ota
-XR3 net1 n2 GND sky130_fd_pr__res_high_po W=2.85 L=3.30 mult=1
-XR1 net2 vref GND sky130_fd_pr__res_high_po W=2.85 L=48.41 mult=1
+XR1 net1 n2 GND sky130_fd_pr__res_high_po W=2.85 L=3.30 mult=1
+XR2 net2 vref GND sky130_fd_pr__res_high_po W=2.85 L=49.04 mult=1
 **** begin user architecture code
 
 
@@ -54,16 +54,16 @@ XR1 net2 vref GND sky130_fd_pr__res_high_po W=2.85 L=48.41 mult=1
 *.ipin V-
 *.ipin Vss
 *.ipin Vb
-XM1 net1 Vb Vdd Vdd sky130_fd_pr__pfet_01v8 L=0.30 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0
-+ mult=1
-XM2 net2 V+ net1 net1 sky130_fd_pr__pfet_01v8 L=0.30 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0
-+ mult=1
-XM3 Vout V- net1 net1 sky130_fd_pr__pfet_01v8 L=0.30 W=5 nf=1 ad=1.45 as=1.45 pd=10.58 ps=10.58 nrd=0.058 nrs=0.058 sa=0 sb=0 sd=0
-+ mult=1
-XM4 Vout net2 Vss Vss sky130_fd_pr__nfet_01v8 L=0.30 W=2.5 nf=1 ad=0.725 as=0.725 pd=5.58 ps=5.58 nrd=0.116 nrs=0.116 sa=0 sb=0
+XM1 net1 Vb Vdd Vdd sky130_fd_pr__pfet_01v8 L=0.50 W=16 nf=1 ad=4.64 as=4.64 pd=32.58 ps=32.58 nrd=0.018125 nrs=0.018125 sa=0 sb=0
 + sd=0 mult=1
-XM5 net2 net2 Vss Vss sky130_fd_pr__nfet_01v8 L=0.30 W=2.5 nf=1 ad=0.725 as=0.725 pd=5.58 ps=5.58 nrd=0.116 nrs=0.116 sa=0 sb=0
-+ sd=0 mult=1
+XM2 net2 V+ net1 net1 sky130_fd_pr__pfet_01v8 L=0.50 W=16 nf=1 ad=4.64 as=4.64 pd=32.58 ps=32.58 nrd=0.018125 nrs=0.018125 sa=0
++ sb=0 sd=0 mult=1
+XM3 Vout V- net1 net1 sky130_fd_pr__pfet_01v8 L=0.50 W=16 nf=1 ad=4.64 as=4.64 pd=32.58 ps=32.58 nrd=0.018125 nrs=0.018125 sa=0
++ sb=0 sd=0 mult=1
+XM4 Vout net2 Vss Vss sky130_fd_pr__nfet_01v8 L=0.50 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0
++ mult=1
+XM5 net2 net2 Vss Vss sky130_fd_pr__nfet_01v8 L=0.50 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0
++ mult=1
 .ends
 
 .GLOBAL GND

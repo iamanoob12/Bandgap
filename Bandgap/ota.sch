@@ -43,8 +43,8 @@ N -130 140 -100 140 {lab=Vss}
 N -130 210 -100 210 {lab=Vss}
 N 40 -80 70 -80 {lab=Vb}
 C {sky130_fd_pr/pfet_01v8.sym} 20 -80 0 1 {name=M1
-W=5
-L=0.30
+W=16
+L=0.50
 nf=1
 mult=1
 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
@@ -57,8 +57,8 @@ model=pfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/pfet_01v8.sym} -120 30 0 0 {name=M2
-W=5
-L=0.30
+W=16
+L=0.50
 nf=1
 mult=1
 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
@@ -71,8 +71,8 @@ model=pfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/pfet_01v8.sym} 130 30 0 1 {name=M3
-W=5
-L=0.30
+W=16
+L=0.50
 nf=1
 mult=1
 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
@@ -89,8 +89,8 @@ C {opin.sym} 110 80 0 0 {name=p3 lab=Vout}
 C {ipin.sym} -170 30 0 0 {name=p2 lab=V+}
 C {ipin.sym} 190 30 0 1 {name=p4 lab=V-}
 C {sky130_fd_pr/nfet_01v8.sym} 90 140 0 0 {name=M4
-W=2.5
-L=0.30
+W=4
+L=0.50
 nf=1 
 mult=1
 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
@@ -103,8 +103,8 @@ model=nfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/nfet_01v8.sym} -80 140 0 1 {name=M5
-W=2.5
-L=0.30
+W=4
+L=0.50
 nf=1 
 mult=1
 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
