@@ -1,0 +1,7 @@
+Corner result (measured from extracted raw data)
+
+Corner | Vref @ 27 C | Variation | TC | Shift vs. tt @ 27 C
+------ | ------------ | --------- | -- | -------------------
+tt | 1.1609 V | 1.0 mV | 5 ppm/C | n/a
+ss | 1.1547 V | 1.2 mV | 6 ppm/C | -6.2 mV (-0.54%)
+ff | 1.1672 V | 0.7 mV | 4 ppm/C | +6.3 mV (+0.54%)

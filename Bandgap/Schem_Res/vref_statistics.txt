@@ -1,0 +1,8 @@
+File           : /home/goose/Projects/Spice/Test/Bandgap/Bandgap/Monte_Carlo/vref_27.csv
+Number of runs : 1000
+Nominal        : 1.160903 V
+Mean           : 1.159738 V
+Median         : 1.163740 V
+Sample sigma   : 0.117148 V (10.091 % of nominal)
+3-sigma range  : 0.809461 .. 1.512346 V
+Min / max      : 0.781199 .. 1.476690 V
