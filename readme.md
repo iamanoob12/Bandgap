@@ -120,7 +120,9 @@ This project evolved through the following stages:
    same bandgap topology and design concept as V2, while increasing the
    transistor sizes in the OTA and Vbias-generation circuitry. The larger
    devices are intended to reduce the OTA overdrive voltage ($V_{ov}$) and
-   improve the available operating margin.
+   improve the available operating margin. The current V3 typical-corner
+   result is approximately 1.190 V at 27 °C, with 6--8 ppm/°C temperature
+   coefficient across the process corners.
 
 Simulation data in `Bandgap/Result/` may be regenerated when the schematic or
 simulation setup changes. The plotting helper can be used to process ngspice
@@ -141,17 +143,21 @@ Setup: 1.8 V supply, −40 °C to 125 °C, `tt` / `ss` / `ff` model corners, OTA
 
 | Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C |
 | ------ | ------------ | -------- | -------- | ------------ | ----------- | -------------------- |
-| tt     | ≈ 1.1609 V   | ≈ 1.1599 V (-40 °C) | ≈ 1.1609 V (16.6 °C)  | ≈ 1.0 mV | ≈ 5 | n/a |
-| ss     | ≈ 1.1547 V   | ≈ 1.1535 V (119.9 °C) | ≈ 1.1547 V (36.3 °C)  | ≈ 1.2 mV | ≈ 6 | ≈ -6 mV (-0.5 %) |
-| ff     | ≈ 1.1672 V   | ≈ 1.1667 V (-40 °C) | ≈ 1.1674 V (-2.2 °C)  | ≈ 0.7 mV | ≈ 4 | ≈ +6 mV (+0.5 %) |
+| tt     | ≈ 1.1901 V   | — | — | ≈ 1.4 mV | ≈ 7 | n/a |
+| ss     | ≈ 1.1870 V   | — | — | ≈ 1.2 mV | ≈ 6 | ≈ -3.1 mV (-0.26 %) |
+| ff     | ≈ 1.1935 V   | — | — | ≈ 1.7 mV | ≈ 8 | ≈ +3.5 mV (+0.29 %) |
 
 Temperature coefficient is the box method: TC = (Vmax − Vmin) / (Vref(27 °C) · 165 °C) · 10⁶.
 
 Notes:
-- The TT result is ≈ 1.161 V, which is in the expected range for a conventional silicon bandgap reference.
-- tt has the lowest variation (≈ 5 ppm/°C), consistent with the design having been tuned at tt.
-- The corner-to-corner spread at 27 °C (ss to ff ≈ 12.5 mV, ≈ 1.1 %) is larger than the temperature variation inside any one corner.
-- All three corners remain close to the 1.16 V nominal target; process corners shift the output by about ±6 mV.
+- The TT result is ≈ 1.190 V, with the V3 sizing changes shifting the nominal
+  output relative to the earlier V2 result.
+- The temperature coefficient ranges from approximately 6 to 8 ppm/°C across
+  the three process corners.
+- The corner-to-corner spread at 27 °C (ss to ff ≈ 6.5 mV, ≈ 0.55 %) is
+  smaller than the earlier V2 spread.
+- All three corners remain close to the 1.19 V nominal target; process corners
+  shift the output by about -3.1 mV to +3.5 mV.
 - The resistors are ideal (not SKY130 resistor models), so the corner spread covers only what the model corners change. There is no resistor spread and no mismatch (Monte Carlo) here.
 - Values above are extracted from the raw data and can be regenerated with the plotting helper.
 
@@ -164,12 +170,12 @@ nominal value is taken from the TT raw-data result:
 
 | Metric | Result |
 | ------ | ------ |
-| Nominal | 1.160903 V |
-| Mean | 1.159738 V |
-| Median | 1.163740 V |
-| Sample sigma | 0.117148 V (10.091 %) |
-| 3-sigma range | 0.809461 V to 1.512346 V |
-| Observed minimum / maximum | 0.781199 V to 1.476690 V |
+| Nominal | 1.190056 V |
+| Mean | 1.184496 V |
+| Median | 1.183755 V |
+| Sample sigma | 0.063974 V (5.376 %) |
+| 3-sigma range | 0.998133 V to 1.381979 V |
+| Observed minimum / maximum | 0.847041 V to 1.392410 V |
 
 The 3-sigma range is calculated as `nominal ± 3 × sample sigma`. The large
 Monte Carlo spread indicates that the mismatch model or circuit operating
