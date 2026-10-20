@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_RESULT_DIR = PROJECT_ROOT / "Bandgap" / "Result"
+
 def read_ngspice_raw(path: Path) -> tuple[list[str], np.ndarray]:
     raw = path.read_bytes()
     marker = b"Binary:\n"
@@ -58,6 +61,38 @@ def extract_corner_metrics(path: Path) -> dict[str, float | str]:
         "vref_max": float(voltage[maximum_index]),
         "vref_max_temp": float(temperature[maximum_index]),
     }
+
+
+def format_corner_result(metrics: list[dict[str, float | str]]) -> str:
+    """Format extracted corner metrics and shifts for a report."""
+    tt_vref = next(
+        float(item["vref_27"]) for item in metrics if item["corner"] == "tt"
+    )
+    rows = [
+        "Corner result (measured from extracted raw data)",
+        "",
+        "Corner | Vref @ 27 C | Variation | TC | Shift vs. tt @ 27 C",
+        "------ | ------------ | --------- | -- | -------------------",
+    ]
+    for item in sorted(metrics, key=lambda value: ("tt", "ss", "ff").index(value["corner"])):
+        variation_mv = (float(item["vref_max"]) - float(item["vref_min"])) * 1e3
+        tc = variation_mv / (float(item["vref_27"]) * 165.0) * 1e3
+        shift_mv = (float(item["vref_27"]) - tt_vref) * 1e3
+        if item["corner"] == "tt":
+            shift = "n/a"
+        else:
+            shift_percent = (float(item["vref_27"]) - tt_vref) / tt_vref * 100.0
+            shift = f"{shift_mv:+.1f} mV ({shift_percent:+.2f}%)"
+        rows.append(
+            f"{item['corner']} | {float(item['vref_27']):.4f} V | "
+            f"{variation_mv:.1f} mV | {tc:.0f} ppm/C | {shift}"
+        )
+    return "\n".join(rows) + "\n"
+
+
+def write_corner_result(path: Path, metrics: list[dict[str, float | str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(format_corner_result(metrics), encoding="utf-8")
 
 
 def make_readme_table(metrics: list[dict[str, float | str]]) -> str:
@@ -108,13 +143,13 @@ def main() -> None:
         "files",
         nargs="*",
         type=Path,
-        help="ngspice raw files; defaults to Bandgap/Result/{ff,ss,tt}.raw",
+        help="ngspice raw files; defaults to the repository's Bandgap/Result directory",
     )
     parser.add_argument(
         "-o",
         "--output",
         type=Path,
-        default=Path("Bandgap/Schem_Res/bandgap_corners.png"),
+        default=PROJECT_ROOT / "Bandgap" / "Schem_Res" / "bandgap_corners.png",
     )
     parser.add_argument(
         "--update-readme",
@@ -124,11 +159,17 @@ def main() -> None:
     parser.add_argument(
         "--readme",
         type=Path,
-        default=Path("readme.md"),
+        default=PROJECT_ROOT / "readme.md",
         help="README path used with --update-readme",
     )
+    parser.add_argument(
+        "--corner-result",
+        type=Path,
+        default=PROJECT_ROOT / "Bandgap" / "Schem_Res" / "corner_result.txt",
+        help="Report containing extracted corner parameters",
+    )
     args = parser.parse_args()
-    files = args.files or [Path("Bandgap/Result") / f"{corner}.raw" for corner in ("ff", "ss", "tt")]
+    files = args.files or [DEFAULT_RESULT_DIR / f"{corner}.raw" for corner in ("ff", "ss", "tt")]
     metrics = [extract_corner_metrics(path) for path in files]
 
     figure, axis = plt.subplots(figsize=(8, 5))
@@ -138,6 +179,25 @@ def main() -> None:
         voltage_index = variables.index("v(vref)")
         axis.plot(data[:, temperature_index], data[:, voltage_index], label=path.stem)
 
+    extracted_lines = []
+    for item in sorted(metrics, key=lambda value: ("tt", "ss", "ff").index(value["corner"])):
+        vref_27 = float(item["vref_27"])
+        variation_mv = (float(item["vref_max"]) - float(item["vref_min"])) * 1e3
+        tc_ppm = variation_mv / (vref_27 * 165.0) * 1e3
+        extracted_lines.append(
+            f"{item['corner']}: {vref_27:.3f} V, "
+            f"{variation_mv:.1f} mV, {tc_ppm:.0f} ppm/°C"
+        )
+    if extracted_lines:
+        axis.text(
+            0.02,
+            0.98,
+            "Extracted\n" + "\n".join(extracted_lines),
+            transform=axis.transAxes,
+            va="top",
+            fontsize=8,
+            bbox={"facecolor": "white", "alpha": 0.8, "edgecolor": "0.7"},
+        )
     axis.set_xlabel("Temperature (degC)")
     axis.set_ylabel("Vref (V)")
     axis.grid(True, alpha=0.3)
@@ -145,7 +205,10 @@ def main() -> None:
     figure.tight_layout()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(args.output, dpi=160)
+    plt.close(figure)
     print(f"Saved {args.output}")
+    write_corner_result(args.corner_result, metrics)
+    print(f"Saved {args.corner_result}")
     if args.update_readme:
         update_readme(args.readme, make_readme_table(metrics))
         print(f"Updated {args.readme}")

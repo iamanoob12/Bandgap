@@ -96,6 +96,27 @@ Rendered schematics and simulation plots are stored in
 `Bandgap/Schem_Res/`. The current repository includes the bandgap schematic,
 the temperature-corner plot, and the two-stage amplifier schematic image.
 
+## Bandgap design evolution
+
+This project evolved through the following stages:
+
+1. **[Old-Bandgap branch](https://github.com/iamanoob12/Bandgap/tree/Old-Bandgap)** -
+   an initial compact ngspice experiment using an ideal voltage-controlled
+   op-amp, SKY130 PNPs, PFETs, and a simple resistor network. It established
+   the basic bandgap behavior, with a simulated output of approximately
+   1.20--1.25 V over temperature, but did not yet model a realistic amplifier
+   or fully characterize the reference.
+2. **[V1 branch](https://github.com/iamanoob12/Bandgap/tree/V1)** - the
+   design was moved toward an Xschem-first implementation with the
+   two-stage amplifier and SKY130 device models. This branch is currently at
+   the same revision as `main`.
+3. **[V2 branch](https://github.com/iamanoob12/Bandgap/tree/V2)** - the
+   improved implementation uses a real two-stage OTA in the feedback loop,
+   SKY130 high-poly resistors, process-corner temperature sweeps, and Monte
+   Carlo analysis. The typical-corner result is approximately 1.161 V at
+   27 °C, with 4--6 ppm/°C temperature coefficient across the process
+   corners.
+
 Simulation data in `Bandgap/Result/` may be regenerated when the schematic or
 simulation setup changes. The plotting helper can be used to process ngspice
 raw files when a Python environment with its dependencies is available:
@@ -104,6 +125,11 @@ raw files when a Python environment with its dependencies is available:
 .venv/bin/python Bandgap/plot_raw.py
 ```
 
+This also writes `Bandgap/Schem_Res/corner_result.txt`, containing the
+extracted corner values and measured shift from TT at 27 °C. The generated
+corner plot annotation also uses the Vref, temperature variation, and
+temperature coefficient extracted from the raw files.
+
 ## Vref versus temperature and process corner
 
 Setup: 1.8 V supply, −40 °C to 125 °C, `tt` / `ss` / `ff` model corners, two-stage amplifier in the loop.
@@ -111,20 +137,39 @@ The amplifier is characterized in the [Two-Stage Miller project](https://github.
 
 | Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C |
 | ------ | ------------ | -------- | -------- | ------------ | ----------- | -------------------- |
-| tt     | ≈ 1.1784 V   | ≈ 1.1776 V (-40 °C) | ≈ 1.1790 V (105 °C)  | ≈ 1.5 mV | ≈ 8 | n/a |
-| ss     | ≈ 1.1947 V   | ≈ 1.1916 V (-40 °C) | ≈ 1.1958 V (82 °C)  | ≈ 4.2 mV | ≈ 22 | ≈ +16 mV (+1.4 %) |
-| ff     | ≈ 1.1604 V   | ≈ 1.1604 V (38 °C) | ≈ 1.1624 V (-40 °C)  | ≈ 2.1 mV | ≈ 11 | ≈ -18 mV (-1.5 %) |
+| tt     | ≈ 1.1609 V   | ≈ 1.1599 V (-40 °C) | ≈ 1.1609 V (16.6 °C)  | ≈ 1.0 mV | ≈ 5 | n/a |
+| ss     | ≈ 1.1547 V   | ≈ 1.1535 V (119.9 °C) | ≈ 1.1547 V (36.3 °C)  | ≈ 1.2 mV | ≈ 6 | ≈ -6 mV (-0.5 %) |
+| ff     | ≈ 1.1672 V   | ≈ 1.1667 V (-40 °C) | ≈ 1.1674 V (-2.2 °C)  | ≈ 0.7 mV | ≈ 4 | ≈ +6 mV (+0.5 %) |
 
 Temperature coefficient is the box method: TC = (Vmax − Vmin) / (Vref(27 °C) · 165 °C) · 10⁶.
 
 Notes:
-- tt has the lowest variation (≈ 8 ppm/°C), consistent with the design having been tuned at tt.
-- The corner-to-corner spread (ss to ff ≈ 34 mV, ≈ 2.9 %) is several times larger than the variation over temperature inside any one corner. Process, not temperature, dominates the absolute accuracy.
-- The curve shapes differ: tt and ss bow downward, while ff bows upward with a minimum near 35 °C.
+- The TT result is ≈ 1.161 V, which is in the expected range for a conventional silicon bandgap reference.
+- tt has the lowest variation (≈ 5 ppm/°C), consistent with the design having been tuned at tt.
+- The corner-to-corner spread at 27 °C (ss to ff ≈ 12.5 mV, ≈ 1.1 %) is larger than the temperature variation inside any one corner.
+- All three corners remain close to the 1.16 V nominal target; process corners shift the output by about ±6 mV.
 - The resistors are ideal (not SKY130 resistor models), so the corner spread covers only what the model corners change. There is no resistor spread and no mismatch (Monte Carlo) here.
-- Values were read from the plot (±0.5 mV). The numbers above should be regenerated from the raw data.
+- Values above are extracted from the raw data and can be regenerated with the plotting helper.
 
 ![Bandgap corners](Bandgap/Schem_Res/bandgap_corners.png)
+
+## Monte Carlo variation
+
+The Monte Carlo analysis contains 1,000 samples of `Vref` at 27 °C. The
+nominal value is taken from the TT raw-data result:
+
+| Metric | Result |
+| ------ | ------ |
+| Nominal | 1.160903 V |
+| Mean | 1.159738 V |
+| Median | 1.163740 V |
+| Sample sigma | 0.117148 V (10.091 %) |
+| 3-sigma range | 0.809461 V to 1.512346 V |
+| Observed minimum / maximum | 0.781199 V to 1.476690 V |
+
+The 3-sigma range is calculated as `nominal ± 3 × sample sigma`. The large
+Monte Carlo spread indicates that the mismatch model or circuit operating
+point should be investigated separately from the process-corner result.
 
 ## Topology evolution
 
