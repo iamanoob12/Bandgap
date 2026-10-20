@@ -71,8 +71,8 @@ def format_corner_result(metrics: list[dict[str, float | str]]) -> str:
     rows = [
         "Corner result (measured from extracted raw data)",
         "",
-        "Corner | Vref @ 27 C | Variation | TC | Shift vs. tt @ 27 C",
-        "------ | ------------ | --------- | -- | -------------------",
+        "Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C",
+        "------ | ------------ | -------- | -------- | ------------ | ----------- | --------------------",
     ]
     for item in sorted(metrics, key=lambda value: ("tt", "ss", "ff").index(value["corner"])):
         variation_mv = (float(item["vref_max"]) - float(item["vref_min"])) * 1e3
@@ -85,7 +85,9 @@ def format_corner_result(metrics: list[dict[str, float | str]]) -> str:
             shift = f"{shift_mv:+.1f} mV ({shift_percent:+.2f}%)"
         rows.append(
             f"{item['corner']} | {float(item['vref_27']):.4f} V | "
-            f"{variation_mv:.1f} mV | {tc:.0f} ppm/C | {shift}"
+            f"{float(item['vref_min']):.4f} V ({float(item['vref_min_temp']):g} °C) | "
+            f"{float(item['vref_max']):.4f} V ({float(item['vref_max_temp']):g} °C) | "
+            f"{variation_mv:.1f} mV | {tc:.0f} ppm/°C | {shift}"
         )
     return "\n".join(rows) + "\n"
 

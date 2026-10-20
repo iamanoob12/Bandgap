@@ -143,9 +143,9 @@ Setup: 1.8 V supply, −40 °C to 125 °C, `tt` / `ss` / `ff` model corners, OTA
 
 | Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C |
 | ------ | ------------ | -------- | -------- | ------------ | ----------- | -------------------- |
-| tt     | ≈ 1.1901 V   | — | — | ≈ 1.4 mV | ≈ 7 | n/a |
-| ss     | ≈ 1.1870 V   | — | — | ≈ 1.2 mV | ≈ 6 | ≈ -3.1 mV (-0.26 %) |
-| ff     | ≈ 1.1935 V   | — | — | ≈ 1.7 mV | ≈ 8 | ≈ +3.5 mV (+0.29 %) |
+| tt     | ≈ 1.1901 V   | ≈ 1.1886 V (119.9 °C) | ≈ 1.1901 V (24.4 °C)  | ≈ 1.4 mV | ≈ 7 | n/a |
+| ss     | ≈ 1.1870 V   | ≈ 1.1857 V (119.9 °C) | ≈ 1.1870 V (30.2 °C)  | ≈ 1.2 mV | ≈ 6 | ≈ -3 mV (-0.3 %) |
+| ff     | ≈ 1.1935 V   | ≈ 1.1919 V (119.9 °C) | ≈ 1.1936 V (16 °C)  | ≈ 1.7 mV | ≈ 8 | ≈ +3 mV (+0.3 %) |
 
 Temperature coefficient is the box method: TC = (Vmax − Vmin) / (Vref(27 °C) · 165 °C) · 10⁶.
 
