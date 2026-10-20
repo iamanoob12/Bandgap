@@ -243,10 +243,12 @@ $-1.25$ to $-1.4\ \mathrm{mV}/^\circ\mathrm{C}$ over the observed range.
 The OTA combines this single-PNP CTAT voltage with the PTAT contribution to
 set the Vref temperature coefficient.
 
-This V2 arrangement replaces the V1 sizing trade-offs based on reducing
-channel length and increasing $R_{BE}$. It keeps the PNP area scaling and
-resistor value explicit in the schematic while using the OTA to enforce the
-required branch-voltage relationship.
+In V2, the PMOS devices were resized substantially larger and $R_1$ (also
+referred to as $R_{BE}$ in the earlier design discussion) was reduced. These
+changes increase the current in each branch and provide the drive required by
+the larger PMOS devices. The PNP area scaling and resistor value remain
+explicit in the schematic, while the OTA enforces the required branch-voltage
+relationship.
 
 ## Future work
 
