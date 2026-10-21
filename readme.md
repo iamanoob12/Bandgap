@@ -102,26 +102,28 @@ This project evolved through the following stages:
 
 1. **[Old-Bandgap branch](https://github.com/iamanoob12/Bandgap/tree/Old-Bandgap)** -
    an initial compact ngspice experiment using an ideal voltage-controlled
-   op-amp, SKY130 PNPs, PFETs, and a simple resistor network. It established
-   the basic bandgap behavior, with a simulated output of approximately
-   1.20--1.25 V over temperature, but did not yet model a realistic amplifier
-   or fully characterize the reference.
+   op-amp and ideal resistor network together with SKY130 PNPs and PFETs. It
+   established the basic bandgap behavior, with a simulated output of
+   approximately 1.20--1.25 V over temperature, but did not yet model a
+   realistic amplifier or fully characterize the reference.
 2. **[V1 branch](https://github.com/iamanoob12/Bandgap/tree/V1)** - the
    design was moved toward an Xschem-first implementation with the
-   two-stage amplifier and SKY130 device models. This branch is currently at
-   the same revision as `main`.
+   two-stage amplifier, SKY130 device models, and a generic poly (PO)
+   resistor model. V1 is the NMOS-input OTA baseline used for the first
+   non-ideal implementation.
 3. **[V2 branch](https://github.com/iamanoob12/Bandgap/tree/V2)** - the
    improved implementation uses a real two-stage OTA in the feedback loop,
-   SKY130 high-poly resistors, process-corner temperature sweeps, and Monte
-   Carlo analysis. The typical-corner result is approximately 1.161 V at
-   27 °C, with 4--6 ppm/°C temperature coefficient across the process
-   corners.
+   SKY130 high-poly (`res_high_po`) resistors, process-corner temperature
+   sweeps, and Monte Carlo analysis. The typical-corner result is
+   approximately 1.161 V at 27 °C, with 4--6 ppm/°C temperature coefficient
+   across the process corners.
 4. **[V3 branch](https://github.com/iamanoob12/Bandgap/tree/V3)** - keeps the
    same bandgap topology and design concept as V2, while increasing the
    transistor sizes in the OTA and Vbias-generation circuitry. The larger
    devices are intended to reduce the OTA overdrive voltage ($V_{ov}$) and
-   improve the available operating margin. The current V3 typical-corner
-   result is approximately 1.190 V at 27 °C, with 6--8 ppm/°C temperature
+   improve the available operating margin. Like V2, V3 uses SKY130
+   high-poly (`res_high_po`) resistors. The current V3 typical-corner result
+   is approximately 1.190 V at 27 °C, with 6--8 ppm/°C temperature
    coefficient across the process corners.
 
 Simulation data in `Bandgap/Result/` may be regenerated when the schematic or
@@ -139,7 +141,19 @@ temperature coefficient extracted from the raw files.
 
 ## Vref versus temperature and process corner
 
-Setup: 1.8 V supply, −40 °C to 125 °C, `tt` / `ss` / `ff` model corners, OTA in the loop.
+Setup: 1.8 V supply, −40 °C to 125 °C, and the OTA in the loop. The process
+corners are:
+
+- `tt`: typical process models, used for the nominal baseline.
+- `ss`: slow NMOS and slow PMOS process models.
+- `ff`: fast NMOS and fast PMOS process models.
+- `tt_mm`: typical process models with mismatch enabled, used by the Monte
+  Carlo runs.
+
+The `tt`, `ss`, and `ff` corner sweeps characterize process and temperature
+variation without the Monte Carlo mismatch run. The `tt_mm` model is a
+separate typical-corner model selection for mismatch analysis; it is not an
+additional process corner.
 
 | Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C |
 | ------ | ------------ | -------- | -------- | ------------ | ----------- | -------------------- |
@@ -158,15 +172,29 @@ Notes:
   smaller than the earlier V2 spread.
 - All three corners remain close to the 1.19 V nominal target; process corners
   shift the output by about -3.1 mV to +3.5 mV.
-- The resistors are ideal (not SKY130 resistor models), so the corner spread covers only what the model corners change. There is no resistor spread and no mismatch (Monte Carlo) here.
+- The current V3 schematic uses SKY130 `res_high_po` resistor models, so the
+  corner spread includes the resistor model's corner behavior. This result
+  table does not include resistor mismatch; mismatch is evaluated separately
+  by the Monte Carlo analysis.
 - Values above are extracted from the raw data and can be regenerated with the plotting helper.
 
 ![Bandgap corners](Bandgap/Schem_Res/bandgap_corners.png)
 
 ## Monte Carlo variation
 
-The Monte Carlo analysis contains 1,000 samples of `Vref` at 27 °C. The
-nominal value is taken from the TT raw-data result:
+### Setup
+
+The Monte Carlo run uses the SKY130 `tt_mm` model from
+`sky130.lib.spice`, with a 1.8 V supply and an operating temperature of
+27 °C. The control block performs 1,000 operating-point runs, resetting the
+circuit before each run and writing the resulting `Vref` value to
+`Bandgap/Monte_Carlo/vref_27.csv`. The `tt_mm` selection keeps the process at
+the typical corner while enabling mismatch variation for `res_high_po`,
+`res_generic_po`, and MOS devices. BJT mismatch is not enabled in this
+analysis.
+
+The nominal value reported below is taken from the separate TT raw-data
+result, not from the Monte Carlo mean:
 
 | Metric | Result |
 | ------ | ------ |
@@ -189,6 +217,39 @@ The distribution and run-by-run results are plotted from
 
 The full generated report is available in
 [`Bandgap/Schem_Res/vref_statistics.txt`](Bandgap/Schem_Res/vref_statistics.txt).
+
+### V1, V2, and V3 comparison
+
+The same `tt_mm` Monte Carlo setup was also used to compare the three design
+revisions:
+
+| Revision | OTA input pair and sizing | Nominal Vref | Mean Vref | Median Vref | Sample sigma | Observed behavior |
+| -------- | ------------------------- | ------------ | --------- | ----------- | ------------ | ----------------- |
+| V1 | NMOS input pair; undersized for mismatch margin | 1.148697 V | 1.148697 V | 1.175685 V | n/a | Very wide, asymmetric spread with many failed low-output runs |
+| V2 | PMOS input OTA with a larger PTAT mirror current; OTA still undersized | 1.160903 V | 1.159738 V | 1.163740 V | 0.117148 V (117.15 mV, 10.091%) | Centered distribution, but significant mismatch sensitivity remains |
+| V3 | Larger OTA devices to further reduce $V_{ov}$ | 1.190056 V | 1.184496 V | 1.183755 V | 0.063974 V (63.974 mV, 5.376%) | Improved operating margin and mismatch behavior relative to V1 and V2 |
+
+V1's poor Monte Carlo behavior is caused by the two-stage OTA's NMOS input
+pair. When mismatch separates the input devices, the input operating point can
+be driven too low, causing failed Monte Carlo runs whose bandgap output is
+approximately 0.5 V at 27 °C rather than the intended regulated value.
+
+V2 replaces the NMOS-input OTA with a PMOS-input OTA and increases the PTAT
+mirror current. This avoids the dominant V1 input-pair mismatch problem:
+the PMOS and NMOS threshold voltages have different temperature behavior, and
+the PMOS threshold magnitude decreases much more strongly with temperature
+than the NMOS threshold voltage. However, the OTA sizing is still
+insufficient: without mismatch, its initial overdrive voltage is only about
+1--3 mV, leaving little margin for device variation.
+
+V3 increases the OTA device sizes to further reduce the initial overdrive
+voltage and improve the available operating margin. This is the sizing change
+described in the V3 design rationale above; it is intended to make the loop
+less sensitive to mismatch rather than change the bandgap topology.
+
+![V1 Monte Carlo comparison](Bandgap/Schem_Res/V1_monte_carlo.png)
+
+![V2 Monte Carlo comparison](Bandgap/Schem_Res/V2_monte_carlo.png)
 
 ## Topology evolution
 
@@ -232,13 +293,13 @@ saturation, so -40 °C is the binding constraint for this sizing.
 
 ## V2 and V3 topology and sizing rationale
 
-The V2 and V3 designs are revisions of the V1 topology described above. Both
-use
-an 8:2 PNP emitter-area ratio in the PTAT core, implemented with PNP
-multipliers of $m=8$ and $m=2$. This forms the two-PTAT structure used by the
-feedback loop: the difference in $V_{BE}$ is generated by the area ratio,
-$\Delta V_{BE}=\frac{kT}{q}\ln(8/2)=\frac{kT}{q}\ln(4)$, and converted to a
-PTAT current through $R_1$.
+The V2 and V3 designs are revisions of the V1 topology described above. Both use an 8:2 PNP emitter-area ratio in the PTAT core, implemented with PNP
+multipliers of $m=8$ and $m=2$. This PTAT structure uses the area-ratio
+difference in $V_{BE}$ to generate
+$\Delta V_{BE}=\frac{kT}{q}\ln(8/2)=\frac{kT}{q}\ln(4)$, which is converted
+to a PTAT current through $R_1$. The 8:2 ratio, rather than the earlier 8:1
+ratio, provides the required PTAT contribution while allowing the PMOS
+current mirror to operate in saturation.
 
 The V2 and V3 value of $R_1=500\ \Omega$ is half the value used in the
 Old-Bandgap design. This lower resistance is intentional. It increases the
