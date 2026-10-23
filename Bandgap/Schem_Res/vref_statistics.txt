@@ -1,4 +1,4 @@
-File           : /home/goose/Projects/Spice/Test/Bandgap/Bandgap/Monte_Carlo/vref_27.csv
+File           : /home/goose/Projects/Spice/Bandgap/Bandgap/Monte_Carlo/vref_27.csv
 Number of runs : 1000
 Nominal        : 1.190056 V
 Mean           : 1.184496 V

@@ -8,17 +8,33 @@ The project is developed around an Xschem-first workflow. Xschem schematics
 are the source of truth; ngspice is used as the simulator through the
 schematic simulation setup and generated netlists.
 
+## What has been achieved
+
+- Built a 1.8 V bandgap reference around a PMOS-input OTA and an 8:2 PNP
+  emitter-area ratio.
+- Reworked the original diode-stacked topology into a lower-headroom feedback
+  topology with one PMOS and one BJT in each sensing branch.
+- Characterized the current V3 design from −40 °C to 120 °C across the `tt`,
+  `ss`, and `ff` SKY130 process corners.
+- Measured approximately 1.190 V at 27 °C, with 6--8 ppm/°C temperature
+  coefficient across the process corners.
+- Completed a 1,000-run `tt_mm` Monte Carlo analysis; the current design has
+  5.376% sample sigma relative to nominal, improved from the V2 result of
+  10.091%.
+- Verified that the PMOS devices in both V2 and V3 operate in the
+  weak-to-moderate inversion region.
+
 ## Project status
 
 - Target supply: 1.8 V
 - Process: SKY130A
 - Schematic editor: Xschem
 - Simulator: ngspice 47 or newer
-- Main circuit: bandgap reference with a two-stage amplifier
+- Main circuit: bandgap reference with a PMOS-input OTA
 
-The circuit is an experimental design and is not yet characterized as a
-production-ready reference. Startup, loop stability, PSRR, line regulation,
-and load regulation may still require additional work.
+The circuit is an experimental design, not a production-ready reference.
+Startup, loop stability, PSRR, line regulation, load regulation, and broader
+corner validation still require additional work.
 
 ## Requirements
 
@@ -90,11 +106,10 @@ simulation plots.
 
 ![OTA schematic](Bandgap/Schem_Res/OTA_schem.png)
 
-## Results
+## Generated outputs
 
-Rendered schematics and simulation plots are stored in
-`Bandgap/Schem_Res/`. The current repository includes the bandgap and OTA
-schematics, process-corner results, and Monte Carlo results.
+Rendered schematics, process-corner reports, and Monte Carlo plots are stored
+in `Bandgap/Schem_Res/`.
 
 ## Bandgap design evolution
 
@@ -112,18 +127,18 @@ This project evolved through the following stages:
    resistor model. V1 is the NMOS-input OTA baseline used for the first
    non-ideal implementation.
 3. **[V2 branch](https://github.com/iamanoob12/Bandgap/tree/V2)** - the
-   improved implementation uses a real two-stage OTA in the feedback loop,
+   improved implementation uses a PMOS-input OTA in the feedback loop,
    SKY130 high-poly (`res_high_po`) resistors, process-corner temperature
    sweeps, and Monte Carlo analysis. The typical-corner result is
-   approximately 1.161 V at 27 °C, with 4--6 ppm/°C temperature coefficient
+   approximately 1.161 V at 27 °C, with 6--8 ppm/°C temperature coefficient
    across the process corners.
 4. **[V3 branch](https://github.com/iamanoob12/Bandgap/tree/V3)** - keeps the
-   same bandgap topology and design concept as V2, while increasing the
-   transistor sizes in the OTA and Vbias-generation circuitry. The larger
-   devices are intended to reduce the OTA overdrive voltage ($V_{ov}$) and
-   improve the available operating margin. Like V2, V3 uses SKY130
-   high-poly (`res_high_po`) resistors. The current V3 typical-corner result
-   is approximately 1.190 V at 27 °C, with 6--8 ppm/°C temperature
+   same PMOS-input OTA, bandgap topology, and design concept as V2, while
+   increasing the transistor sizes in the OTA and Vbias-generation circuitry.
+   The larger devices are intended to reduce the OTA overdrive voltage
+   ($V_{ov}$) and improve the available operating margin. Like V2, V3 uses
+   SKY130 high-poly (`res_high_po`) resistors. The current V3 typical-corner
+   result is approximately 1.190 V at 27 °C, with 6--8 ppm/°C temperature
    coefficient across the process corners.
 
 Simulation data in `Bandgap/Result/` may be regenerated when the schematic or
@@ -141,7 +156,7 @@ temperature coefficient extracted from the raw files.
 
 ## Vref versus temperature and process corner
 
-Setup: 1.8 V supply, −40 °C to 125 °C, and the OTA in the loop. The process
+Setup: 1.8 V supply, −40 °C to 120 °C, and the OTA in the loop. The process
 corners are:
 
 - `tt`: typical process models, used for the nominal baseline.
@@ -161,13 +176,9 @@ additional process corner.
 | ss     | ≈ 1.1870 V   | ≈ 1.1857 V (119.9 °C) | ≈ 1.1870 V (30.2 °C)  | ≈ 1.2 mV | ≈ 6 | ≈ -3 mV (-0.3 %) |
 | ff     | ≈ 1.1935 V   | ≈ 1.1919 V (119.9 °C) | ≈ 1.1936 V (16 °C)  | ≈ 1.7 mV | ≈ 8 | ≈ +3 mV (+0.3 %) |
 
-Temperature coefficient is the box method: TC = (Vmax − Vmin) / (Vref(27 °C) · 165 °C) · 10⁶.
+Temperature coefficient is the box method: TC = (Vmax − Vmin) / (Vref(27 °C) · 160 °C) · 10⁶.
 
 Notes:
-- The TT result is ≈ 1.190 V, with the V3 sizing changes shifting the nominal
-  output relative to the earlier V2 result.
-- The temperature coefficient ranges from approximately 6 to 8 ppm/°C across
-  the three process corners.
 - The corner-to-corner spread at 27 °C (ss to ff ≈ 6.5 mV, ≈ 0.55 %) is
   smaller than the earlier V2 spread.
 - All three corners remain close to the 1.19 V nominal target; process corners
@@ -226,8 +237,8 @@ revisions:
 | Revision | OTA input pair and sizing | Nominal Vref | Mean Vref | Median Vref | Sample sigma | Observed behavior |
 | -------- | ------------------------- | ------------ | --------- | ----------- | ------------ | ----------------- |
 | V1 | NMOS input pair; undersized for mismatch margin | 1.148697 V | 1.148697 V | 1.175685 V | n/a | Very wide, asymmetric spread with many failed low-output runs |
-| V2 | PMOS input OTA with a larger PTAT mirror current; OTA still undersized | 1.160903 V | 1.159738 V | 1.163740 V | 0.117148 V (117.15 mV, 10.091%) | Centered distribution, but significant mismatch sensitivity remains |
-| V3 | Larger OTA devices to further reduce $V_{ov}$ | 1.190056 V | 1.184496 V | 1.183755 V | 0.063974 V (63.974 mV, 5.376%) | Improved operating margin and mismatch behavior relative to V1 and V2 |
+| V2 | PMOS-input OTA with larger PTAT mirror current; weak-to-moderate inversion | 1.160903 V | 1.159738 V | 1.163740 V | 0.117148 V (117.15 mV, 10.091%) | Centered distribution, but significant mismatch sensitivity remains |
+| V3 | Larger PMOS-input OTA devices; weak-to-moderate inversion | 1.190056 V | 1.184496 V | 1.183755 V | 0.063974 V (63.974 mV, 5.376%) | Improved operating margin and mismatch behavior relative to V1 and V2 |
 
 V1's poor Monte Carlo behavior is caused by the two-stage OTA's NMOS input
 pair. When mismatch separates the input devices, the input operating point can
@@ -235,17 +246,13 @@ be driven too low, causing failed Monte Carlo runs whose bandgap output is
 approximately 0.5 V at 27 °C rather than the intended regulated value.
 
 V2 replaces the NMOS-input OTA with a PMOS-input OTA and increases the PTAT
-mirror current. This avoids the dominant V1 input-pair mismatch problem:
-the PMOS and NMOS threshold voltages have different temperature behavior, and
-the PMOS threshold magnitude decreases much more strongly with temperature
-than the NMOS threshold voltage. However, the OTA sizing is still
-insufficient: without mismatch, its initial overdrive voltage is only about
-1--3 mV, leaving little margin for device variation.
+mirror current. Its weak-to-moderate inversion operation avoids the dominant
+V1 input-pair mismatch problem, but the OTA remains undersized and has only
+about 1--3 mV of initial overdrive voltage.
 
-V3 increases the OTA device sizes to further reduce the initial overdrive
-voltage and improve the available operating margin. This is the sizing change
-described in the V3 design rationale above; it is intended to make the loop
-less sensitive to mismatch rather than change the bandgap topology.
+V3 keeps the PMOS-input OTA and weak-to-moderate inversion operation while
+increasing device sizes to improve operating margin and reduce mismatch
+sensitivity. The detailed topology and sizing rationale follows below.
 
 ![V1 Monte Carlo comparison](Bandgap/Schem_Res/V1_monte_carlo.png)
 
@@ -304,10 +311,10 @@ current mirror to operate in saturation.
 The V2 and V3 value of $R_1=500\ \Omega$ is half the value used in the
 Old-Bandgap design. This lower resistance is intentional. It increases the
 PTAT current produced by the $\Delta V_{BE}$ term and allows the PMOS load
-above the PNP devices to operate closer to the weak-inversion/strong-inversion
-transition, rather than being limited by the low-current operating point of
-the earlier design. The PMOS operating region and its margin should still be
-checked across process, temperature, and supply corners.
+above the PNP devices. In both V2 and V3, the verified operating region is
+weak-to-moderate inversion rather than moderate-to-strong inversion. V3
+retains this topology while changing device sizing to improve operating
+margin.
 
 The CTAT branch is different from the PTAT core: it uses a single PNP rather
 than the 8:2 PNP pair. Its temperature dependence is therefore obtained from
