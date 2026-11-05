@@ -89,8 +89,8 @@ C {opin.sym} 110 80 0 0 {name=p3 lab=Vout}
 C {ipin.sym} -170 30 0 0 {name=p2 lab=V+}
 C {ipin.sym} 190 30 0 1 {name=p4 lab=V-}
 C {sky130_fd_pr/nfet_01v8.sym} 90 140 0 0 {name=M4
-W=4
-L=0.50
+W=10
+L=1
 nf=1 
 mult=1
 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
@@ -103,8 +103,8 @@ model=nfet_01v8
 spiceprefix=X
 }
 C {sky130_fd_pr/nfet_01v8.sym} -80 140 0 1 {name=M5
-W=4
-L=0.50
+W=10
+L=1
 nf=1 
 mult=1
 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"

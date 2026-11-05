@@ -107,6 +107,27 @@ N 450 430 490 430 {lab=GND}
 N 450 430 450 490 {lab=GND}
 N 940 200 940 260 {lab=vref}
 N 510 250 510 310 {lab=n2}
+N 1300 330 1390 330 {lab=#net3}
+N 1300 330 1300 400 {lab=#net3}
+N 1340 430 1370 430 {lab=#net3}
+N 1370 330 1370 430 {lab=#net3}
+N 1260 430 1300 430 {lab=GND}
+N 1260 430 1260 500 {lab=GND}
+N 1260 500 1300 500 {lab=GND}
+N 1300 460 1300 500 {lab=GND}
+N 1300 500 1300 520 {lab=GND}
+N 1430 360 1430 390 {lab=n3}
+N 1430 390 1500 390 {lab=n3}
+N 1430 330 1490 330 {lab=vdd}
+N 1490 330 1500 330 {lab=vdd}
+N 1430 250 1430 300 {lab=n1}
+N 1340 250 1430 250 {lab=n1}
+N 1300 280 1300 330 {lab=#net3}
+N 1270 250 1300 250 {lab=vdd}
+N 1270 190 1270 250 {lab=vdd}
+N 1270 190 1300 190 {lab=vdd}
+N 1300 190 1300 220 {lab=vdd}
+N 1300 180 1300 190 {lab=vdd}
 C {gnd.sym} 510 600 0 0 {name=l1 lab=GND}
 C {gnd.sym} 730 600 0 0 {name=l2 lab=GND}
 C {lab_pin.sym} 440 80 0 0 {name=p1 sig_type=std_logic lab=vdd}
@@ -158,7 +179,7 @@ spiceprefix=X
 }
 C {sky130_fd_pr/pnp_05v5.sym} 710 530 0 0 {name=Q2
 model=pnp_05v5_W3p40L3p40
-m=2
+m=1
 spiceprefix=X
 }
 C {sky130_fd_pr/corner.sym} -540 360 0 0 {name=CORNER only_toplevel=true corner=tt}
@@ -230,13 +251,60 @@ C {lab_wire.sym} 940 280 0 1 {name=p13 sig_type=std_logic lab=vref}
 C {ota.sym} 210 500 0 0 {name=x1}
 C {sky130_fd_pr/res_high_po.sym} 510 430 0 0 {name=R1
 W=2.85
-L=3.30
+L=8.60
 model=res_high_po
 spiceprefix=X
 mult=1}
 C {sky130_fd_pr/res_high_po.sym} 940 350 0 0 {name=R2
 W=2.85
-L=49.04
+L=72.4
 model=res_high_po
 spiceprefix=X
 mult=1}
+C {sky130_fd_pr/pfet_01v8.sym} 1410 330 0 0 {name=M14
+W=15
+L=0.18
+nf=1
+mult=1
+ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
+pd="expr('2*int((@nf + 1)/2) * (@W / @nf + 0.29)')"
+as="expr('int((@nf + 2)/2) * @W / @nf * 0.29')"
+ps="expr('2*int((@nf + 2)/2) * (@W / @nf + 0.29)')"
+nrd="expr('0.29 / @W ')" nrs="expr('0.29 / @W ')"
+sa=0 sb=0 sd=0
+model=pfet_01v8
+spiceprefix=X
+}
+C {sky130_fd_pr/nfet_01v8.sym} 1320 430 0 1 {name=M16
+W=1
+L=5
+nf=1 
+mult=1
+ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
+pd="expr('2*int((@nf + 1)/2) * (@W / @nf + 0.29)')"
+as="expr('int((@nf + 2)/2) * @W / @nf * 0.29')"
+ps="expr('2*int((@nf + 2)/2) * (@W / @nf + 0.29)')"
+nrd="expr('0.29 / @W ')" nrs="expr('0.29 / @W ')"
+sa=0 sb=0 sd=0
+model=nfet_01v8
+spiceprefix=X
+}
+C {gnd.sym} 1300 520 0 0 {name=l11 lab=GND}
+C {lab_wire.sym} 1500 390 0 1 {name=p18 sig_type=std_logic lab=n3}
+C {lab_wire.sym} 1500 330 0 1 {name=p19 sig_type=std_logic lab=vdd}
+C {lab_wire.sym} 1430 250 0 1 {name=p20 sig_type=std_logic lab=n1}
+C {sky130_fd_pr/pfet_01v8.sym} 1320 250 0 1 {name=M17
+W=15
+L=0.18
+nf=1
+mult=1
+ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')"
+pd="expr('2*int((@nf + 1)/2) * (@W / @nf + 0.29)')"
+as="expr('int((@nf + 2)/2) * @W / @nf * 0.29')"
+ps="expr('2*int((@nf + 2)/2) * (@W / @nf + 0.29)')"
+nrd="expr('0.29 / @W ')" nrs="expr('0.29 / @W ')"
+sa=0 sb=0 sd=0
+model=pfet_01v8
+spiceprefix=X
+}
+C {lab_wire.sym} 1300 180 0 1 {name=p21 sig_type=std_logic lab=vdd}
