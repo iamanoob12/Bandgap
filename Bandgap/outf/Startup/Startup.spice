@@ -54,18 +54,21 @@ SSTART vdd n1 start_ctrl GND SWSTART
 
 .control
 
-    * Startup simulation at -40 Celsius
     options temp=-40
+    tran 1n 17u 10u
 
-    * Transient analysis: 10 ms, maximum timestep 1 us
-    tran 0.1u 20u
+    options temp=27
+    tran 1n 17u 10u
 
-    * Plot important nodes
-    plot v(vref) v(n1)
+    options temp=120
+    tran 1n 17u 10u
 
+    plot tran1.v(vref) tran2.v(vref) tran3.v(vref) v(n1)
+    plot tran1.net3 tran2.net3 tran3.net3 v(n1)
     * Save waveform data
-    *write startup_m40.raw v(vref) v(n1) v(n2) v(n3)
 
+    write startup.raw tran1.v(vref) tran2.v(vref) tran3.v(vref) v(n1)
+    write startup_branch.raw tran1.net3 tran2.net3 tran3.net3 tran1.v(n1) tran2.v(n1) tran3.v(n1)
     *quit
 
 .endc

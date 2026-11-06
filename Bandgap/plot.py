@@ -12,7 +12,8 @@ import numpy as np
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_RESULT_DIR = PROJECT_ROOT / "Bandgap" / "Result"
+BANDGAP_DIR = Path(__file__).resolve().parent
+DEFAULT_RESULT_DIR = BANDGAP_DIR / "outf" / "Process_Corners"
 
 def read_ngspice_raw(path: Path) -> tuple[list[str], np.ndarray]:
     raw = path.read_bytes()
@@ -145,13 +146,13 @@ def main() -> None:
         "files",
         nargs="*",
         type=Path,
-        help="ngspice raw files; defaults to the repository's Bandgap/Result directory",
+        help="ngspice raw files; defaults to Bandgap/outf/Process_Corners",
     )
     parser.add_argument(
         "-o",
         "--output",
         type=Path,
-        default=PROJECT_ROOT / "Bandgap" / "Schem_Res" / "bandgap_corners.png",
+        default=BANDGAP_DIR / "Data" / "Process_Corners" / "bandgap_corners.png",
     )
     parser.add_argument(
         "--update-readme",
@@ -167,7 +168,7 @@ def main() -> None:
     parser.add_argument(
         "--corner-result",
         type=Path,
-        default=PROJECT_ROOT / "Bandgap" / "Schem_Res" / "corner_result.txt",
+        default=BANDGAP_DIR / "Data" / "Process_Corners" / "corner_result.txt",
         help="Report containing extracted corner parameters",
     )
     args = parser.parse_args()
