@@ -4,9 +4,9 @@ This repository contains the Xschem schematics, device-level investigations,
 and simulation results for a low-voltage bandgap reference using the SKY130
 process design kit.
 
-The project is developed around an Xschem-first workflow. Xschem schematics
-are the source of truth; ngspice is used as the simulator through the
-schematic simulation setup and generated netlists.
+The project follows an Xschem-first workflow. Xschem schematics are the
+source of truth; ngspice is used as the simulator through the schematic
+simulation setup and generated netlists.
 
 ## Project status
 
@@ -15,10 +15,11 @@ schematic simulation setup and generated netlists.
 - Schematic editor: Xschem
 - Simulator: ngspice 47 or newer
 - Main circuit: bandgap reference with a two-stage amplifier
+- Current testing iteration: V3.1 on the existing `Testing-V3` branch
 
-The circuit is an experimental design and is not yet characterized as a
-production-ready reference. Startup, loop stability, PSRR, line regulation,
-and load regulation may still require additional work.
+The circuit is experimental and has not yet been characterized for production
+use. Loop stability, PSRR, and line regulation may still require additional
+work.
 
 ## Requirements
 
@@ -45,10 +46,11 @@ export PDK_ROOT=/path/to/your/pdk
 │   ├── Bandgap.sch          # Main bandgap schematic
 │   ├── ota.sch              # OTA schematic used by the bandgap
 │   ├── ota.sym              # Local Xschem symbol for the OTA
-│   ├── Monte_Carlo/         # Monte Carlo netlist, data, and analysis script
-│   ├── Result/               # Simulation netlists and generated data
-│   ├── Schem_Res/            # Rendered schematics and plots
-│   └── plot_raw.py           # Optional raw-data plotting script
+│   ├── plot.py              # Process-corner plotting script
+│   ├── Monte_Carlo/         # Monte Carlo inputs and analysis script
+│   ├── Startup/             # Startup analysis script
+│   ├── outf/                # SPICE netlists and raw simulation data
+│   └── Data/                # Generated plots and text reports
 ├── Bjt/
 │   ├── pnp.spice            # PNP device investigation
 │   └── vbe.txt              # Recorded VBE data
@@ -67,8 +69,9 @@ export PDK_ROOT=/path/to/your/pdk
 3. Run the simulation from Xschem using the schematic's configured ngspice
 	simulation command.
 4. Inspect waveforms and operating points in the Xschem/ngspice plot window.
-5. Save rendered schematics and exported plots under `Bandgap/Schem_Res/`.
-6. Keep generated raw data and netlists under `Bandgap/Result/` rather than
+5. Save rendered schematics under `Bandgap/Data/Schematics/` and plots/reports
+	under the matching `Bandgap/Data/` analysis directory.
+6. Keep generated raw data and netlists under `Bandgap/outf/` rather than
 	editing generated files as the primary circuit source.
 
 The standalone files under `Bjt/` and `Mos_Analysis/` are supporting device
@@ -82,19 +85,19 @@ regions used when sizing the main schematic.
 `Bandgap/Bandgap.sch` contains the main bandgap reference and its configured
 simulation plots.
 
-![Bandgap schematic](Bandgap/Schem_Res/Bandgap_schem.png)
+![Bandgap schematic](Bandgap/Data/Schematics/Bandgap_schem.png)
 
 ### OTA
 
 `Bandgap/ota.sch` contains the OTA used in the current bandgap design.
 
-![OTA schematic](Bandgap/Schem_Res/OTA_schem.png)
+![OTA schematic](Bandgap/Data/Schematics/OTA_schem.png)
 
 ## Results
 
-Rendered schematics and simulation plots are stored in
-`Bandgap/Schem_Res/`. The current repository includes the bandgap and OTA
-schematics, process-corner results, and Monte Carlo results.
+Rendered schematics, simulation plots, and reports are stored in
+`Bandgap/Data/`. The corresponding netlists and raw simulation data are in
+`Bandgap/outf/`.
 
 ## Bandgap design evolution
 
@@ -126,22 +129,31 @@ This project evolved through the following stages:
    is approximately 1.190 V at 27 °C, with 6--8 ppm/°C temperature
    coefficient across the process corners.
 
-Simulation data in `Bandgap/Result/` may be regenerated when the schematic or
-simulation setup changes. The plotting helper can be used to process ngspice
-raw files when a Python environment with its dependencies is available:
+V3.1 is a testing iteration of V3, not a new design branch. It is being
+tested on the existing `Testing-V3` branch and keeps the same core feedback
+topology. It changes selected device multipliers and dimensions, adds a
+multi-temperature startup transient test, exports the Vref and
+startup-branch raw waveforms, and refreshes the process-corner and Monte
+Carlo result set.
+
+Simulation data in `Bandgap/outf/` may be regenerated when the schematic or
+simulation setup changes. The Python analysis scripts read raw data from
+`Bandgap/outf/` and write results to the matching `Bandgap/Data/` folder:
 
 ```sh
-.venv/bin/python Bandgap/plot_raw.py
+.venv/bin/python Bandgap/plot.py
+.venv/bin/python Bandgap/Monte_Carlo/analyze_vref.py
+.venv/bin/python Bandgap/Startup/plot_startup.py
 ```
 
-This also writes `Bandgap/Schem_Res/corner_result.txt`, containing the
-extracted corner values and measured shift from TT at 27 °C. The generated
-corner plot annotation also uses the Vref, temperature variation, and
-temperature coefficient extracted from the raw files.
+The corner script writes to `Bandgap/Data/Process_Corners/`.
+The Monte Carlo script writes to `Bandgap/Data/Monte_Carlo/`.
+The startup script writes separate Vref and startup-branch plots plus a timing
+report to `Bandgap/Data/Startup/`.
 
 ## Vref versus temperature and process corner
 
-Setup: 1.8 V supply, −40 °C to 125 °C, and the OTA in the loop. The process
+Setup: 1.8 V supply, −40 °C to 120 °C, and the OTA in the loop. The process
 corners are:
 
 - `tt`: typical process models, used for the nominal baseline.
@@ -157,28 +169,26 @@ additional process corner.
 
 | Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C |
 | ------ | ------------ | -------- | -------- | ------------ | ----------- | -------------------- |
-| tt     | ≈ 1.1901 V   | ≈ 1.1886 V (119.9 °C) | ≈ 1.1901 V (24.4 °C)  | ≈ 1.4 mV | ≈ 7 | n/a |
-| ss     | ≈ 1.1870 V   | ≈ 1.1857 V (119.9 °C) | ≈ 1.1870 V (30.2 °C)  | ≈ 1.2 mV | ≈ 6 | ≈ -3 mV (-0.3 %) |
-| ff     | ≈ 1.1935 V   | ≈ 1.1919 V (119.9 °C) | ≈ 1.1936 V (16 °C)  | ≈ 1.7 mV | ≈ 8 | ≈ +3 mV (+0.3 %) |
+| tt     | ≈ 1.2023 V   | ≈ 1.2002 V (119.9 °C) | ≈ 1.2024 V (18 °C)  | ≈ 2.1 mV | ≈ 11 | n/a |
+| ss     | ≈ 1.2008 V   | ≈ 1.1986 V (-40 °C) | ≈ 1.2008 V (26.6 °C)  | ≈ 2.2 mV | ≈ 11 | ≈ -1.5 mV (-0.12 %) |
+| ff     | ≈ 1.2039 V   | ≈ 1.2014 V (119.9 °C) | ≈ 1.2041 V (9.4 °C)  | ≈ 2.8 mV | ≈ 14 | ≈ +1.6 mV (+0.13 %) |
 
-Temperature coefficient is the box method: TC = (Vmax − Vmin) / (Vref(27 °C) · 165 °C) · 10⁶.
+Temperature coefficient uses the box method over the simulated −40 °C to
+120 °C range: TC = (Vmax − Vmin) / (Vref(27 °C) · 160 °C) · 10⁶.
 
 Notes:
-- The TT result is ≈ 1.190 V, with the V3 sizing changes shifting the nominal
-  output relative to the earlier V2 result.
-- The temperature coefficient ranges from approximately 6 to 8 ppm/°C across
+- The current V3.1 TT result is ≈ 1.202 V.
+- The temperature coefficient ranges from approximately 11 to 14 ppm/°C across
   the three process corners.
-- The corner-to-corner spread at 27 °C (ss to ff ≈ 6.5 mV, ≈ 0.55 %) is
-  smaller than the earlier V2 spread.
-- All three corners remain close to the 1.19 V nominal target; process corners
-  shift the output by about -3.1 mV to +3.5 mV.
-- The current V3 schematic uses SKY130 `res_high_po` resistor models, so the
+- The corner-to-corner spread at 27 °C (ss to ff ≈ 3.1 mV, ≈ 0.26 %) is
+  smaller than the earlier V3 result.
+- The current V3.1 design uses SKY130 `res_high_po` resistor models, so the
   corner spread includes the resistor model's corner behavior. This result
-  table does not include resistor mismatch; mismatch is evaluated separately
+  The table does not include resistor mismatch; mismatch is evaluated separately
   by the Monte Carlo analysis.
 - Values above are extracted from the raw data and can be regenerated with the plotting helper.
 
-![Bandgap corners](Bandgap/Schem_Res/bandgap_corners.png)
+![Bandgap corners](Bandgap/Data/Process_Corners/bandgap_corners.png)
 
 ## Monte Carlo variation
 
@@ -198,29 +208,30 @@ result, not from the Monte Carlo mean:
 
 | Metric | Result |
 | ------ | ------ |
-| Nominal | 1.190056 V |
-| Mean | 1.184496 V |
-| Median | 1.183755 V |
-| Sample sigma | 0.063974 V (5.376 %) |
-| 3-sigma range | 0.998133 V to 1.381979 V |
-| Observed minimum / maximum | 0.847041 V to 1.392410 V |
+| Nominal | 1.202339 V |
+| Mean | 1.202780 V |
+| Median | 1.202195 V |
+| Sample sigma | 0.030108 V (2.504 %) |
+| 3-sigma range | 1.112015 V to 1.292664 V |
+| Observed minimum / maximum | 1.107700 V to 1.300520 V |
 
-The 3-sigma range is calculated as `nominal ± 3 × sample sigma`. The large
-Monte Carlo spread indicates that the mismatch model or circuit operating
-point should be investigated separately from the process-corner result.
+The 3-sigma range is calculated as `nominal ± 3 × sample sigma`. The V3.1
+spread is narrower than the V3 result, but the mismatch model and circuit
+operating point should still be investigated separately from the
+process-corner result.
 
 The distribution and run-by-run results are plotted from
 `Bandgap/Monte_Carlo/vref_27.csv` by
 `Bandgap/Monte_Carlo/analyze_vref.py`:
 
-![Monte Carlo Vref distribution and runs](Bandgap/Schem_Res/vref_results.png)
+![Monte Carlo Vref distribution and runs](Bandgap/Data/Monte_Carlo/vref_results.png)
 
 The full generated report is available in
-[`Bandgap/Schem_Res/vref_statistics.txt`](Bandgap/Schem_Res/vref_statistics.txt).
+[`Bandgap/Data/Monte_Carlo/vref_statistics.txt`](Bandgap/Data/Monte_Carlo/vref_statistics.txt).
 
-### V1, V2, and V3 comparison
+### V1, V2, V3, and V3.1 comparison
 
-The same `tt_mm` Monte Carlo setup was also used to compare the three design
+The same `tt_mm` Monte Carlo setup was also used to compare the four design
 revisions:
 
 | Revision | OTA input pair and sizing | Nominal Vref | Mean Vref | Median Vref | Sample sigma | Observed behavior |
@@ -228,6 +239,7 @@ revisions:
 | V1 | NMOS input pair; undersized for mismatch margin | 1.148697 V | 1.148697 V | 1.175685 V | n/a | Very wide, asymmetric spread with many failed low-output runs |
 | V2 | PMOS input OTA with a larger PTAT mirror current; OTA still undersized | 1.160903 V | 1.159738 V | 1.163740 V | 0.117148 V (117.15 mV, 10.091%) | Centered distribution, but significant mismatch sensitivity remains |
 | V3 | Larger OTA devices to further reduce $V_{ov}$ | 1.190056 V | 1.184496 V | 1.183755 V | 0.063974 V (63.974 mV, 5.376%) | Improved operating margin and mismatch behavior relative to V1 and V2 |
+| V3.1 | Same core topology; updated Q2, resistors, and OTA loads | 1.202339 V | 1.202780 V | 1.202195 V | 0.030108 V (30.108 mV, 2.504%) | Testing iteration; narrower observed spread than V3 |
 
 V1's poor Monte Carlo behavior is caused by the two-stage OTA's NMOS input
 pair. When mismatch separates the input devices, the input operating point can
@@ -247,9 +259,74 @@ voltage and improve the available operating margin. This is the sizing change
 described in the V3 design rationale above; it is intended to make the loop
 less sensitive to mismatch rather than change the bandgap topology.
 
-![V1 Monte Carlo comparison](Bandgap/Schem_Res/V1_monte_carlo.png)
+![V1 Monte Carlo comparison](Bandgap/Data/Monte_Carlo/Revision_Comparisons/V1_monte_carlo.png)
 
-![V2 Monte Carlo comparison](Bandgap/Schem_Res/V2_monte_carlo.png)
+![V2 Monte Carlo comparison](Bandgap/Data/Monte_Carlo/Revision_Comparisons/V2_monte_carlo.png)
+
+## V3.1 testing iteration on `Testing-V3`
+
+V3.1 is not a new Git branch. It is the current testing process on the
+existing `Testing-V3` branch. The core bandgap feedback topology is retained,
+but the implementation changes the following V3 devices and values:
+
+| Element | V3 baseline | V3.1 testing |
+| ------- | ----------- | ------------ |
+| PTAT PNP `Q2` multiplier | `m=2` | `m=1` |
+| `R1` length | 3.30 | 8.60 |
+| `R2` length | 49.04 | 72.4 |
+| OTA NMOS loads `M4`, `M5` | `W=4`, `L=0.50` | `W=10`, `L=1` |
+| Startup devices | Not present | `M14/M17: W=15, L=0.18`; `M16: W=1, L=5` |
+
+The PNP ratio therefore changes from the V3 8:2 implementation to 8:1 in
+V3.1, while the feedback-based bandgap topology remains the same. V3.1 also
+adds a startup transient test using a 10 µs control transition, 1 ns maximum
+timestep, and simulations at -40 °C, 27 °C, and 120 °C. The generated raw files are stored under
+`Bandgap/outf/Startup/`, with plots and reports under `Bandgap/Data/Startup/`.
+
+| Measurement | V3 baseline | V3.1 testing result |
+| ----------- | ----------- | ------------------- |
+| TT Vref at 27 °C | ≈ 1.1901 V | ≈ 1.2023 V |
+| TT temperature coefficient | ≈ 7 ppm/°C | ≈ 11 ppm/°C |
+| Monte Carlo mean | 1.184496 V | 1.202780 V |
+| Monte Carlo sample sigma | 63.974 mV (5.376%) | 30.108 mV (2.504%) |
+| Startup time at -40 °C | Not measured | 2.853 µs |
+| Startup time at 27 °C | Not measured | 110.629 ns |
+| Startup time at 120 °C | Not measured | 1.761 ns |
+
+Startup time is measured from the falling edge of `n1` until Vref reaches
+90% of its final value. The `net3` waveform is a separate branch-off check;
+its final values are 1.779540 V, 1.784151 V, and 1.787918 V at -40 °C, 27 °C,
+and 120 °C respectively, which is close to the 1.8 V supply.
+
+The current V3.1 evidence is collected in
+`Bandgap/Data/Process_Corners/`, `Bandgap/Data/Monte_Carlo/`, and
+`Bandgap/Data/Startup/`. These results are still testing data and should not
+be treated as a finalized characterization release.
+
+## Startup
+
+The startup test uses a switched PMOS startup path. `VSTART` drives the
+control node from 1.8 V to 0 V at 10 µs, turning the startup path off through
+`SSTART`. Each transient run uses a 1 ns maximum timestep and runs from 10 µs
+to 17 µs at -40 °C, 27 °C, and 120 °C.
+
+Startup time is measured from the falling edge of `n1` until Vref reaches 90%
+of its final value. The startup branch itself is checked separately using
+`net3`; its final voltage should approach the 1.8 V supply after startup.
+
+| Temperature | Vref final | 90% Vref | n1 fall | Vref reaches 90% | Startup time | net3 final |
+| ----------- | ---------- | -------- | ------- | ----------------- | ------------ | ---------- |
+| -40 °C | 1.199903 V | 1.079912 V | 10.000533 µs | 12.853257 µs | 2.853 µs | 1.779540 V |
+| 27 °C | 1.202338 V | 1.082104 V | 10.000521 µs | 10.111150 µs | 110.629 ns | 1.784151 V |
+| 120 °C | 1.200234 V | 1.080211 V | 10.000521 µs | 10.002283 µs | 1.761 ns | 1.787918 V |
+
+The Vref startup waveforms are shown below:
+
+![V3.1 Vref startup](Bandgap/Data/Startup/startup_vref.png)
+
+The `net3` waveform verifies that the startup branch turns off toward VDD:
+
+![V3.1 startup branch](Bandgap/Data/Startup/startup_voltage.png)
 
 ## Topology evolution
 
@@ -301,7 +378,7 @@ to a PTAT current through $R_1$. The 8:2 ratio, rather than the earlier 8:1
 ratio, provides the required PTAT contribution while allowing the PMOS
 current mirror to operate in saturation.
 
-The V2 and V3 value of $R_1=500\ \Omega$ is half the value used in the
+The V2 and V3 designs use $R_1=500\ \Omega$, half the value used in the
 Old-Bandgap design. This lower resistance is intentional. It increases the
 PTAT current produced by the $\Delta V_{BE}$ term and allows the PMOS load
 above the PNP devices to operate closer to the weak-inversion/strong-inversion
@@ -327,5 +404,8 @@ the underlying V2/V3 bandgap concept or feedback relationship.
 ## Future work
 
 - Analyze PSRR.
-- Check loop stability, compensation, startup, line regulation, and load
-	regulation.
+- Check loop stability, compensation, and line regulation.
+
+Startup testing is complete for the current V3.1 iteration. Load regulation
+is not a target for this bandgap reference; load regulation belongs to a
+separate LDO or load-driving stage that uses the bandgap as a reference.
