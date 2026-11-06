@@ -11,6 +11,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+BANDGAP_DIR = Path(__file__).resolve().parents[1]
+
+
 def read_vref(path: Path) -> np.ndarray:
     """Read the vref column from a CSV file."""
     data = np.genfromtxt(path, delimiter=",", names=True, dtype=None, encoding="utf-8")
@@ -148,8 +151,8 @@ def main() -> None:
     parser.add_argument(
         "--tt-raw",
         type=Path,
-        default=Path(__file__).parents[1] / "Result" / "tt.raw",
-        help="TT temperature-sweep raw file (default: ../Result/tt.raw)",
+        default=BANDGAP_DIR / "outf" / "Process_Corners" / "tt.raw",
+        help="TT temperature-sweep raw file (default: ../outf/Process_Corners/tt.raw)",
     )
     parser.add_argument(
         "--tt-temp",
@@ -160,14 +163,14 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path(__file__).parents[1] / "Schem_Res" / "vref_statistics.txt",
-        help="Report output file (default: ../Schem_Res/vref_statistics.txt)",
+        default=BANDGAP_DIR / "Data" / "Monte_Carlo" / "vref_statistics.txt",
+        help="Report output file (default: ../Data/Monte_Carlo/vref_statistics.txt)",
     )
     parser.add_argument(
         "--plot",
         type=Path,
-        default=Path(__file__).parents[1] / "Schem_Res" / "vref_results.png",
-        help="Plot output file (default: ../Schem_Res/vref_results.png)",
+        default=BANDGAP_DIR / "Data" / "Monte_Carlo" / "vref_results.png",
+        help="Plot output file (default: ../Data/Monte_Carlo/vref_results.png)",
     )
     args = parser.parse_args()
 

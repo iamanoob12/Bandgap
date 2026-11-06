@@ -1,0 +1,9 @@
+Startup time measured from the n1 falling edge to Vref reaching 90% of its final value
+The startup_branch net3 waveform is reported separately to verify that the branch turns off toward Vdd.
+Only datasets containing the saved n1 waveform are included.
+
+Temperature | n1 fall (us) | Vref final (V) | 90% Vref (V) | Vref reaches 90% (us) | startup time (ns) | net3 final (V)
+----------- | ------------- | -------------- | ------------ | ---------------------- | ----------------- | --------------
+        -40 |     10.000533 |       1.199903 |     1.079912 |              12.853257 |          2852.724 |       1.779540
+         27 |     10.000521 |       1.202338 |     1.082104 |              10.111150 |           110.629 |       1.784151
+        120 |     10.000521 |       1.200234 |     1.080211 |              10.002283 |             1.761 |       1.787918

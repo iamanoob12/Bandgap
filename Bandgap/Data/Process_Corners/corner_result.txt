@@ -1,0 +1,7 @@
+Corner result (measured from extracted raw data)
+
+Corner | Vref @ 27 °C | Vref min | Vref max | Peak-to-peak | TC (ppm/°C) | Shift vs. tt @ 27 °C
+------ | ------------ | -------- | -------- | ------------ | ----------- | --------------------
+tt | 1.2023 V | 1.2002 V (119.9 °C) | 1.2024 V (18 °C) | 2.1 mV | 11 ppm/°C | n/a
+ss | 1.2008 V | 1.1986 V (-40 °C) | 1.2008 V (26.6 °C) | 2.2 mV | 11 ppm/°C | -1.5 mV (-0.12%)
+ff | 1.2039 V | 1.2014 V (119.9 °C) | 1.2041 V (9.4 °C) | 2.8 mV | 14 ppm/°C | +1.6 mV (+0.13%)

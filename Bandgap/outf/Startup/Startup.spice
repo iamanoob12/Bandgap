@@ -1,0 +1,108 @@
+** sch_path: /home/goose/Projects/Spice/Test/Bandgap/Bandgap/Bandgap.sch
+**.subckt Bandgap
+
+V1 vdd GND 1.8
+
+XM1 n3 n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.50 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
++ mult=1
+
+XM3 n2 n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.50 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
++ mult=1
+
+XQ1 GND GND net1 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=8 mult=8
+XQ2 GND GND n3 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+
+XM2 Vb Vb vdd vdd sky130_fd_pr__pfet_01v8 L=0.50 W=32 nf=1 ad=9.28 as=9.28 pd=64.58 ps=64.58 nrd=0.0090625 nrs=0.0090625 sa=0 sb=0
++ sd=0 mult=1
+
+XM4 GND GND Vb Vb sky130_fd_pr__pfet_01v8 L=0.50 W=32 nf=1 ad=9.28 as=9.28 pd=64.58 ps=64.58 nrd=0.0090625 nrs=0.0090625 sa=0 sb=0 sd=0
++ mult=1
+
+XM5 vref n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.50 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
++ mult=1
+
+XQ3 GND GND net2 sky130_fd_pr__pnp_05v5_W3p40L3p40 m=1 mult=1
+
+x1 vdd Vb n2 n3 n1 GND ota
+
+XR1 net1 n2 GND sky130_fd_pr__res_high_po W=2.85 L=8.60 mult=1
+XR2 net2 vref GND sky130_fd_pr__res_high_po W=2.85 L=72.4 mult=1
+
+XM14 n3 net3 n1 vdd sky130_fd_pr__pfet_01v8 L=0.18 W=15 nf=1 ad=4.35 as=4.35 pd=30.58 ps=30.58 nrd=0.0193333333333333
++ nrs=0.0193333333333333 sa=0 sb=0 sd=0 mult=1
+
+XM16 net3 net3 GND GND sky130_fd_pr__nfet_01v8 L=5 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0
++ mult=1
+
+XM17 net3 n1 vdd vdd sky130_fd_pr__pfet_01v8 L=0.18 W=15 nf=1 ad=4.35 as=4.35 pd=30.58 ps=30.58 nrd=0.0193333333333333
++ nrs=0.0193333333333333 sa=0 sb=0 sd=0 mult=1
+
+
+**** Startup circuit ****
+
+VSTART start_ctrl GND PULSE(1.8 0 10u 1n 1n 1 2)
+
+SSTART vdd n1 start_ctrl GND SWSTART
+
+.model SWSTART SW(Ron=1 Roff=1e12 Vt=0.9 Vh=0.05)
+
+
+**** begin user architecture code ****
+
+.save all
+.options savecurrent
+
+.control
+
+    options temp=-40
+    tran 1n 17u 10u
+
+    options temp=27
+    tran 1n 17u 10u
+
+    options temp=120
+    tran 1n 17u 10u
+
+    plot tran1.v(vref) tran2.v(vref) tran3.v(vref) v(n1)
+    plot tran1.net3 tran2.net3 tran3.net3 v(n1)
+    * Save waveform data
+
+    write startup.raw tran1.v(vref) tran2.v(vref) tran3.v(vref) v(n1)
+    write startup_branch.raw tran1.net3 tran2.net3 tran3.net3 tran1.v(n1) tran2.v(n1) tran3.v(n1)
+    *quit
+
+.endc
+
+.lib /usr/local/share/pdk/sky130A/libs.tech/combined/sky130.lib.spice tt
+
+**** end user architecture code ****
+
+
+**.ends
+
+* expanding symbol: ota.sym
+** sym_path: /home/goose/Projects/Spice/Test/Bandgap/Bandgap/ota.sym
+** sch_path: /home/goose/Projects/Spice/Test/Bandgap/Bandgap/ota.sch
+
+.subckt ota Vdd Vb V+ V- Vout Vss
+
+XM1 net1 Vb Vdd Vdd sky130_fd_pr__pfet_01v8 L=0.50 W=16 nf=1 ad=4.64 as=4.64 pd=32.58 ps=32.58 nrd=0.018125 nrs=0.018125 sa=0 sb=0
++ sd=0 mult=1
+
+XM2 net2 V+ net1 net1 sky130_fd_pr__pfet_01v8 L=0.50 W=16 nf=1 ad=4.64 as=4.64 pd=32.58 ps=32.58 nrd=0.018125 nrs=0.018125 sa=0
++ sb=0 sd=0 mult=1
+
+XM3 Vout V- net1 net1 sky130_fd_pr__pfet_01v8 L=0.50 W=16 nf=1 ad=4.64 as=4.64 pd=32.58 ps=32.58 nrd=0.018125 nrs=0.018125 sa=0
++ sb=0 sd=0 mult=1
+
+XM4 Vout net2 Vss Vss sky130_fd_pr__nfet_01v8 L=1 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
++ mult=1
+
+XM5 net2 net2 Vss Vss sky130_fd_pr__nfet_01v8 L=1 W=10 nf=1 ad=2.9 as=2.9 pd=20.58 ps=20.58 nrd=0.029 nrs=0.029 sa=0 sb=0 sd=0
++ mult=1
+
+.ends
+
+.GLOBAL GND
+
+.end
